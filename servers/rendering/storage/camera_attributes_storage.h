@@ -57,6 +57,9 @@ private:
 		float dof_blur_near_distance = 2;
 		float dof_blur_near_transition = 1;
 		float dof_blur_amount = 0.1;
+
+		float chromatic_aberration_axial_amount = 0.0;
+		float chromatic_aberration_transverse_amount = 0.0;
 	};
 
 	RS::DOFBlurQuality dof_blur_quality = RS::DOF_BLUR_QUALITY_MEDIUM;
@@ -112,6 +115,10 @@ public:
 
 		return cam_attributes && cam_attributes->use_auto_exposure;
 	}
+
+	void camera_attributes_set_chromatic_aberration(RID p_camera_attributes, float p_axial, float p_transverse);
+	float camera_attributes_get_chromatic_aberration_axial_amount(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_transverse_amount(RID p_camera_attributes);
 
 	_FORCE_INLINE_ RS::DOFBlurQuality camera_attributes_get_dof_blur_quality() {
 		return dof_blur_quality;

@@ -62,7 +62,9 @@ void CameraAttributes::_update_exposure() {
 
 	RS::get_singleton()->camera_attributes_set_exposure(camera_attributes, exposure_multiplier, exposure_normalization);
 }
-
+void CameraAttributes::_update_chromatic_aberration() {
+	RS::get_singleton()->camera_attributes_set_chromatic_aberration(camera_attributes, chromatic_aberration_axial_amount, chromatic_aberration_transverse_amount);
+}
 void CameraAttributes::set_auto_exposure_enabled(bool p_enabled) {
 	auto_exposure_enabled = p_enabled;
 	_update_auto_exposure();
@@ -91,6 +93,23 @@ float CameraAttributes::get_auto_exposure_scale() const {
 	return auto_exposure_scale;
 }
 
+void CameraAttributes::set_chromatic_aberration_axial_amount(float p_chromatic_aberration_axial_amount) {
+	chromatic_aberration_axial_amount = p_chromatic_aberration_axial_amount;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_axial_amount() const {
+	return chromatic_aberration_axial_amount;
+}
+
+void CameraAttributes::set_chromatic_aberration_transverse_amount(float p_chromatic_aberration_transverse_amount) {
+	chromatic_aberration_transverse_amount = p_chromatic_aberration_transverse_amount;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_transverse_amount() const {
+	return chromatic_aberration_transverse_amount;
+}
 RID CameraAttributes::get_rid() const {
 	return camera_attributes;
 }
@@ -120,6 +139,11 @@ void CameraAttributes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_auto_exposure_scale", "exposure_grey"), &CameraAttributes::set_auto_exposure_scale);
 	ClassDB::bind_method(D_METHOD("get_auto_exposure_scale"), &CameraAttributes::get_auto_exposure_scale);
 
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_axial_amount", "chromatic_aberration_axial_amount"), &CameraAttributes::set_chromatic_aberration_axial_amount);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_axial_amount"), &CameraAttributes::get_chromatic_aberration_axial_amount);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_transverse_amount", "chromatic_aberration_transverse_amount"), &CameraAttributes::set_chromatic_aberration_transverse_amount);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_transverse_amount"), &CameraAttributes::get_chromatic_aberration_transverse_amount);
+
 	ADD_GROUP("Exposure", "exposure_");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_sensitivity", PROPERTY_HINT_RANGE, "0.1,32000.0,0.1,suffix:ISO"), "set_exposure_sensitivity", "get_exposure_sensitivity");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_multiplier", PROPERTY_HINT_RANGE, "0.0,8.0,0.001,or_greater"), "set_exposure_multiplier", "get_exposure_multiplier");
@@ -128,6 +152,10 @@ void CameraAttributes::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_exposure_enabled"), "set_auto_exposure_enabled", "is_auto_exposure_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_scale", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_scale", "get_auto_exposure_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_speed", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_speed", "get_auto_exposure_speed");
+
+	ADD_GROUP("Chromatic Aberration", "chromatic_aberration_");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_axial_amount", PROPERTY_HINT_RANGE, "0.0,8.0,0.001"), "set_chromatic_aberration_axial_amount", "get_chromatic_aberration_axial_amount");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_transverse_amount", PROPERTY_HINT_RANGE, "0.0,8.0,0.001"), "set_chromatic_aberration_transverse_amount", "get_chromatic_aberration_transverse_amount");
 }
 
 CameraAttributes::CameraAttributes() {
@@ -445,6 +473,11 @@ void CameraAttributesPhysical::_update_auto_exposure() {
 			auto_exposure_scale);
 	emit_changed();
 }
+
+//void CameraAttributesPhysical::_update_chromatic_aberration() {
+//
+//	emit_changed();
+//}
 
 void CameraAttributesPhysical::_validate_property(PropertyInfo &property) const {
 	if (!GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units") && (property.name == "exposure_aperture" || property.name == "exposure_shutter_speed")) {

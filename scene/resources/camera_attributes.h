@@ -47,6 +47,7 @@ protected:
 	float exposure_multiplier = 1.0;
 	float exposure_sensitivity = 100.0; // In ISO.
 	void _update_exposure();
+	void _update_chromatic_aberration();
 
 	bool auto_exposure_enabled = false;
 	float auto_exposure_min = 0.01;
@@ -54,6 +55,9 @@ protected:
 	float auto_exposure_speed = 0.5;
 	float auto_exposure_scale = 0.4;
 	virtual void _update_auto_exposure(){};
+
+	float chromatic_aberration_axial_amount = 0.0;
+	float chromatic_aberration_transverse_amount = 0.0;
 
 public:
 	virtual RID get_rid() const override;
@@ -70,6 +74,11 @@ public:
 	float get_auto_exposure_speed() const;
 	void set_auto_exposure_scale(float p_auto_exposure_scale);
 	float get_auto_exposure_scale() const;
+
+	void set_chromatic_aberration_axial_amount(float p_chromatic_aberration_axial_amount);
+	float get_chromatic_aberration_axial_amount() const;
+	void set_chromatic_aberration_transverse_amount(float p_chromatic_aberration_axial_amount);
+	float get_chromatic_aberration_transverse_amount() const;
 
 	CameraAttributes();
 	~CameraAttributes();

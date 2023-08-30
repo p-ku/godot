@@ -184,3 +184,27 @@ uint64_t RendererCameraAttributes::camera_attributes_get_auto_exposure_version(R
 	ERR_FAIL_COND_V(!cam_attributes, 0);
 	return cam_attributes->auto_exposure_version;
 }
+
+void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_camera_attributes, float p_axial, float p_transverse) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND(!cam_attributes);
+#ifdef DEBUG_ENABLED
+	if (OS::get_singleton()->get_current_rendering_method() == "gl_compatibility" && (p_axial > 0.0 || p_transverse > 0.0)) {
+		WARN_PRINT_ONCE_ED("Chromatic aberration is only available when using the Forward+ or Mobile rendering backends.");
+	}
+#endif
+	cam_attributes->chromatic_aberration_axial_amount = p_axial;
+	cam_attributes->chromatic_aberration_transverse_amount = p_transverse;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_axial_amount(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_axial_amount;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_transverse_amount(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_transverse_amount;
+}
