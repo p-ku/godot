@@ -57,6 +57,24 @@ private:
 		float dof_blur_near_distance = 2;
 		float dof_blur_near_transition = 1;
 		float dof_blur_amount = 0.1;
+
+		float chromatic_aberration_axial_amount = 0.0;
+		float chromatic_aberration_transverse_amount = 0.0;
+		//	float chromatic_aberration_image_distance_red = 0.0;
+		//	float chromatic_aberration_image_distance_green = 0.0;
+		//	float chromatic_aberration_image_distance_blue = 0.0;
+
+		float chromatic_aberration_lens_center_line = 0.0;
+		float chromatic_aberration_sensor_diagonal = 0.0;
+		float chromatic_aberration_lens_distance = 35.0;
+		float chromatic_aberration_refract_index = 1.4;
+		float chromatic_aberration_curvature_radius = 35.0;
+		float chromatic_aberration_diagonal_fov = 35.0;
+		float chromatic_aberration_apothem = 0.0;
+		float chromatic_aberration_focal_length = 35.0;
+
+		// float chromatic_aberration_half_fov = 0.0;
+		//	float chromatic_aberration_lens_curvature_radius = 0.0;
 	};
 
 	RS::DOFBlurQuality dof_blur_quality = RS::DOF_BLUR_QUALITY_MEDIUM;
@@ -112,6 +130,24 @@ public:
 
 		return cam_attributes && cam_attributes->use_auto_exposure;
 	}
+
+	void camera_attributes_set_chromatic_aberration(RID p_camera_attributes, float p_focal_length, float p_lens_distance, float p_sensor_diagonal, float p_lens_center_line, float p_refract_index, float p_curvature_radius, float p_diagonal_fov, float p_apothem);
+	// float camera_attributes_get_chromatic_aberration_axial_amount(RID p_camera_attributes);
+	// float camera_attributes_get_chromatic_aberration_transverse_amount(RID p_camera_attributes);
+	//	float camera_attributes_get_chromatic_aberration_image_distance_red(RID p_camera_attributes);
+	//	float camera_attributes_get_chromatic_aberration_image_distance_green(RID p_camera_attributes);
+	//	float camera_attributes_get_chromatic_aberration_image_distance_blue(RID p_camera_attributes);
+
+	float camera_attributes_get_chromatic_aberration_lens_distance(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_refract_index(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_curvature_radius(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_lens_center_line(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_sensor_diagonal(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_diagonal_fov(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_apothem(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_focal_length(RID p_camera_attributes);
+
+	//	float camera_attributes_get_chromatic_aberration_lens_curvature_radius(RID p_camera_attributes);
 
 	_FORCE_INLINE_ RS::DOFBlurQuality camera_attributes_get_dof_blur_quality() {
 		return dof_blur_quality;

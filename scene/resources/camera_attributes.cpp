@@ -91,6 +91,51 @@ float CameraAttributes::get_auto_exposure_scale() const {
 	return auto_exposure_scale;
 }
 
+//void CameraAttributes::set_chromatic_aberration_axial_amount(float p_chromatic_aberration_axial_amount) {
+//	chromatic_aberration_axial_amount = p_chromatic_aberration_axial_amount;
+//	_update_chromatic_aberration();
+//}
+//
+//float CameraAttributes::get_chromatic_aberration_axial_amount() const {
+//	return chromatic_aberration_axial_amount;
+//}
+//
+//void CameraAttributes::set_chromatic_aberration_transverse_amount(float p_chromatic_aberration_transverse_amount) {
+//	chromatic_aberration_transverse_amount = p_chromatic_aberration_transverse_amount;
+//	_update_chromatic_aberration();
+//}
+//
+//float CameraAttributes::get_chromatic_aberration_transverse_amount() const {
+//	return chromatic_aberration_transverse_amount;
+//}
+
+void CameraAttributes::set_chromatic_aberration_lens_curvature_radius(float p_chromatic_aberration_lens_curvature_radius) {
+	chromatic_aberration_lens_curvature_radius = p_chromatic_aberration_lens_curvature_radius;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_lens_curvature_radius() const {
+	return chromatic_aberration_lens_curvature_radius;
+}
+
+void CameraAttributes::set_chromatic_aberration_lens_elongation(float p_chromatic_aberration_lens_elongation) {
+	chromatic_aberration_lens_elongation = p_chromatic_aberration_lens_elongation;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_lens_elongation() const {
+	return chromatic_aberration_lens_elongation;
+}
+
+void CameraAttributes::set_chromatic_aberration_refractive_index_offset(float p_chromatic_aberration_refractive_index_offset) {
+	chromatic_aberration_refractive_index_offset = p_chromatic_aberration_refractive_index_offset;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_refractive_index_offset() const {
+	return chromatic_aberration_refractive_index_offset;
+}
+
 RID CameraAttributes::get_rid() const {
 	return camera_attributes;
 }
@@ -120,6 +165,17 @@ void CameraAttributes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_auto_exposure_scale", "exposure_grey"), &CameraAttributes::set_auto_exposure_scale);
 	ClassDB::bind_method(D_METHOD("get_auto_exposure_scale"), &CameraAttributes::get_auto_exposure_scale);
 
+	//	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_axial_amount", "chromatic_aberration_axial_amount"), &CameraAttributes::set_chromatic_aberration_axial_amount);
+	//	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_axial_amount"), &CameraAttributes::get_chromatic_aberration_axial_amount);
+	//ClassDB::bind_method(D_METHOD("set_chromatic_aberration_transverse_amount", "chromatic_aberration_transverse_amount"), &CameraAttributes::set_chromatic_aberration_transverse_amount);
+	//ClassDB::bind_method(D_METHOD("get_chromatic_aberration_transverse_amount"), &CameraAttributes::get_chromatic_aberration_transverse_amount);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_lens_curvature_radius", "chromatic_aberration_lens_curvature_radius"), &CameraAttributes::set_chromatic_aberration_lens_curvature_radius);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_lens_curvature_radius"), &CameraAttributes::get_chromatic_aberration_lens_curvature_radius);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_lens_elongation", "chromatic_aberration_lens_elongation"), &CameraAttributes::set_chromatic_aberration_lens_elongation);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_lens_elongation"), &CameraAttributes::get_chromatic_aberration_lens_elongation);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_refractive_index_offset"), &CameraAttributes::get_chromatic_aberration_refractive_index_offset);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_refractive_index_offset", "chromatic_aberration_refractive_index_offset"), &CameraAttributes::set_chromatic_aberration_refractive_index_offset);
+
 	ADD_GROUP("Exposure", "exposure_");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_sensitivity", PROPERTY_HINT_RANGE, "0.1,32000.0,0.1,suffix:ISO"), "set_exposure_sensitivity", "get_exposure_sensitivity");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_multiplier", PROPERTY_HINT_RANGE, "0.0,8.0,0.001,or_greater"), "set_exposure_multiplier", "get_exposure_multiplier");
@@ -128,6 +184,13 @@ void CameraAttributes::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_exposure_enabled"), "set_auto_exposure_enabled", "is_auto_exposure_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_scale", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_scale", "get_auto_exposure_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_speed", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_speed", "get_auto_exposure_speed");
+
+	ADD_GROUP("Chromatic Aberration", "chromatic_aberration_");
+	//	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_axial_amount", PROPERTY_HINT_RANGE, "0.0,8.0,0.001"), "set_chromatic_aberration_axial_amount", "get_chromatic_aberration_axial_amount");
+	//	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_transverse_amount", PROPERTY_HINT_RANGE, "0.0,8.0,0.001"), "set_chromatic_aberration_transverse_amount", "get_chromatic_aberration_transverse_amount");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_lens_curvature_radius", PROPERTY_HINT_RANGE, "1.0,64.0,0.001"), "set_chromatic_aberration_lens_curvature_radius", "get_chromatic_aberration_lens_curvature_radius");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_lens_elongation", PROPERTY_HINT_RANGE, "0.0,64,0.001"), "set_chromatic_aberration_lens_elongation", "get_chromatic_aberration_lens_elongation");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_refractive_index_offset", PROPERTY_HINT_RANGE, "0.0,8.0,0.001"), "set_chromatic_aberration_refractive_index_offset", "get_chromatic_aberration_refractive_index_offset");
 }
 
 CameraAttributes::CameraAttributes() {
@@ -333,6 +396,7 @@ float CameraAttributesPhysical::get_shutter_speed() const {
 void CameraAttributesPhysical::set_focal_length(float p_focal_length) {
 	frustum_focal_length = p_focal_length;
 	_update_frustum();
+	_update_chromatic_aberration();
 	emit_changed();
 }
 
@@ -343,6 +407,7 @@ float CameraAttributesPhysical::get_focal_length() const {
 void CameraAttributesPhysical::set_focus_distance(float p_focus_distance) {
 	frustum_focus_distance = p_focus_distance;
 	_update_frustum();
+	_update_chromatic_aberration();
 }
 
 float CameraAttributesPhysical::get_focus_distance() const {
@@ -352,6 +417,7 @@ float CameraAttributesPhysical::get_focus_distance() const {
 void CameraAttributesPhysical::set_near(real_t p_near) {
 	frustum_near = p_near;
 	_update_frustum();
+	_update_chromatic_aberration();
 	emit_changed();
 }
 
@@ -375,7 +441,7 @@ real_t CameraAttributesPhysical::get_fov() const {
 
 void CameraAttributesPhysical::_update_frustum() {
 	//https://en.wikipedia.org/wiki/Circle_of_confusion#Circle_of_confusion_diameter_limit_based_on_d/1500
-	Vector2i sensor_size = Vector2i(36, 24); // Matches high-end DSLR, could be made variable if there is demand.
+	// Vector2i sensor_size = Vector2i(36, 24); // Matches high-end DSLR, could be made variable if there is demand.
 	float CoC = sensor_size.length() / 1500.0;
 
 	frustum_fov = Math::rad_to_deg(2 * atan(sensor_size.height / (2 * frustum_focal_length)));
@@ -410,6 +476,63 @@ void CameraAttributesPhysical::_update_frustum() {
 			u / 1000.0,
 			-1.0,
 			scale / 5.0); // Arbitrary scaling to get close to how much blur there should be.
+}
+void CameraAttributesPhysical::_update_chromatic_aberration() {
+	float lens_distance = frustum_focal_length;
+	float sensor_diagonal = sensor_size.length();
+
+	float sensor_half_diagonal = 0.5 * sensor_diagonal;
+	float diagonal_half_fov = atan(sensor_half_diagonal / frustum_focal_length);
+	float sensor_angle = atan(lens_distance / (3.0 * sensor_half_diagonal));
+	float circle_angle = Math_PI * 0.5 - sensor_angle;
+
+	float radius_of_curvature = chromatic_aberration_lens_curvature_radius * sensor_diagonal / cos(circle_angle);
+
+	float lens_half_chord = 2.0 * sensor_half_diagonal;
+	float lens_apothem = sqrt(radius_of_curvature * radius_of_curvature - lens_half_chord * lens_half_chord);
+
+	float lens_center_line = sensor_half_diagonal * (lens_apothem + lens_distance + frustum_focal_length) / frustum_focal_length;
+	//float red_index =
+	float far_angle = 0.5 * Math_PI - diagonal_half_fov;
+
+	float incident_angle = asin(sin(far_angle) * lens_center_line / radius_of_curvature);
+
+	//	float max_normal_angle = far_angle - radius_angle;
+	float max_normal_angle = incident_angle - diagonal_half_fov;
+
+	//float incident_angle = diagonal_half_fov + radius_angle;
+	// float incident_angle = diagonal_half_fov + radius_angle;
+
+	float refracted_angle = circle_angle + max_normal_angle;
+
+	float refract_index = sin(refracted_angle) / sin(incident_angle);
+	// refract_index = 1.0;
+	//	float focus_distance_diopter = 1.0 / frustum_focus_distance;
+	//	float focus_distance_red = 1.0 / (focus_distance_diopter + 0.134980852);
+	//	float focus_distance_green = 1.0 / (focus_distance_diopter - 0.166154857);
+	//	float focus_distance_blue = 1.0 / (focus_distance_diopter - 0.793750897);
+
+	// http://bankslab.berkeley.edu/publications/Files/chromablur_rendering_chromatic17.pdf
+	// D(lambda) = 1.7312 - 633.46 / (lambda - 214.10)
+	// Converted from diopters to length by taking the inverse
+	//float focus_distance_red = frustum_focus_distance;
+	//	float focus_distance_red = 1.0 / (focus_distance_diopter + 0.928731748371521);
+	//	float focus_distance_green = 1.0 / (focus_distance_diopter + 0.627596059994144);
+
+	//	float image_distance_red = focus_distance_red * frustum_focal_length / (focus_distance_red + frustum_focal_length);
+	//	float image_distance_green = focus_distance_green * frustum_focal_length / (focus_distance_green + frustum_focal_length);
+	//	float image_distance_blue = frustum_focus_distance * frustum_focal_length / (frustum_focus_distance + frustum_focal_length);
+
+	//float max_radius = sensor_size.length() * Math_PI / (Math_PI - frustum_fov);
+	//	float image_distance_red = frustum_focus_distance / (frustum_focus_distance - 1.0);
+	//	float image_distance_green = focus_distance_green / (focus_distance_green - 1.0);
+	//	float image_distance_blue = focus_distance_blue / (focus_distance_blue - 1.0);
+	//float half_fov = frustum_fov * 0.5;
+	//float frustum_fov_2 = Math::rad_to_deg(2 * atan(sensor_size.height / (2 * frustum_focal_length)));
+
+	// float fov_d = 0.5 * get_internal_size();
+	//	float lens_radius = (image_distance + frustum_near) * tan(frustum_fov * 0.5);
+	RS::get_singleton()->camera_attributes_set_chromatic_aberration(get_rid(), frustum_focal_length, lens_distance, sensor_half_diagonal, lens_center_line, refract_index, radius_of_curvature, diagonal_half_fov, lens_apothem);
 }
 
 float CameraAttributesPhysical::calculate_exposure_normalization() const {

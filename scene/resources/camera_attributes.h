@@ -54,6 +54,13 @@ protected:
 	float auto_exposure_speed = 0.5;
 	float auto_exposure_scale = 0.4;
 	virtual void _update_auto_exposure(){};
+	virtual void _update_chromatic_aberration(){};
+
+	// float chromatic_aberration_axial_amount = 0.0;
+	//	float chromatic_aberration_transverse_amount = 0.0;
+	float chromatic_aberration_lens_curvature_radius = 1.0;
+	float chromatic_aberration_lens_elongation = 0.0;
+	float chromatic_aberration_refractive_index_offset = 0.0;
 
 public:
 	virtual RID get_rid() const override;
@@ -70,6 +77,17 @@ public:
 	float get_auto_exposure_speed() const;
 	void set_auto_exposure_scale(float p_auto_exposure_scale);
 	float get_auto_exposure_scale() const;
+
+	//	void set_chromatic_aberration_axial_amount(float p_chromatic_aberration_axial_amount);
+	//	float get_chromatic_aberration_axial_amount() const;
+	//	void set_chromatic_aberration_transverse_amount(float p_chromatic_aberration_axial_amount);
+	//	float get_chromatic_aberration_transverse_amount() const;
+	void set_chromatic_aberration_lens_elongation(float p_chromatic_aberration_lens_elongation);
+	float get_chromatic_aberration_lens_elongation() const;
+	void set_chromatic_aberration_lens_curvature_radius(float p_chromatic_aberration_lens_curvature_radius);
+	float get_chromatic_aberration_lens_curvature_radius() const;
+	void set_chromatic_aberration_refractive_index_offset(float p_chromatic_aberration_refractive_index_offset);
+	float get_chromatic_aberration_refractive_index_offset() const;
 
 	CameraAttributes();
 	~CameraAttributes();
@@ -92,6 +110,7 @@ private:
 	void _update_dof_blur();
 
 	virtual void _update_auto_exposure() override;
+	//	virtual void _update_chromatic_aberration() override;
 
 protected:
 	static void _bind_methods();
@@ -140,9 +159,12 @@ private:
 	real_t frustum_near = 0.05;
 	real_t frustum_far = 4000.0;
 	real_t frustum_fov = 75.0;
+	Vector2i sensor_size = Vector2i(36, 24); // Matches high-end DSLR, could be made variable if there is demand.
+
 	void _update_frustum();
 
 	virtual void _update_auto_exposure() override;
+	virtual void _update_chromatic_aberration() override;
 
 protected:
 	static void _bind_methods();

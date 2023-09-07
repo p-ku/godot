@@ -481,6 +481,8 @@ void RenderSceneBuffersRD::allocate_blur_textures() {
 	create_texture(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, internal_size, view_count, mipmaps_required);
 	create_texture(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y >> 1), view_count, mipmaps_required - 1);
 
+	// create_texture(RB_SCOPE_BUFFERS, RB_TEX_CA_0, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y >> 1), view_count, mipmaps_required - 1);
+
 	// if !can_be_storage we need a half width version
 	if (!can_be_storage) {
 		create_texture(RB_SCOPE_BUFFERS, RB_TEX_HALF_BLUR, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y), 1, mipmaps_required);

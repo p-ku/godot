@@ -55,6 +55,8 @@
 #define RB_TEX_BLUR_1 SNAME("blur_1")
 #define RB_TEX_HALF_BLUR SNAME("half_blur") // only for raster!
 
+// #define RB_TEX_CA_0 SNAME("ca_0")
+
 #define RB_TEX_BACK_DEPTH SNAME("back_depth")
 
 class RenderSceneBuffersRD : public RenderSceneBuffers {
