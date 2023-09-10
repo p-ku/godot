@@ -76,17 +76,17 @@ void ChromaticAberration::chromatic_aberration_process(const ChromaticAberration
 	//	float image_distance_green = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_image_distance_green(p_camera_attributes);
 	//	float image_distance_blue = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_image_distance_blue(p_camera_attributes);
 
-	float lens_distance = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_lens_distance(p_camera_attributes);
+	float max_distance = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_max_distance(p_camera_attributes);
 	float lens_center_line = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_lens_center_line(p_camera_attributes);
 	float sensor_diagonal = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_sensor_diagonal(p_camera_attributes);
-	float curvature_radius = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_curvature_radius(p_camera_attributes);
-	float refract_index_blue = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_refract_index(p_camera_attributes);
+	float angle_factor = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_angle_factor(p_camera_attributes);
+	float refract_index_offset = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_refract_index(p_camera_attributes);
 	float apothem = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_apothem(p_camera_attributes);
 	float half_fov = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_diagonal_fov(p_camera_attributes);
 	float focal_length = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_focal_length(p_camera_attributes);
 
 	//	float half_fov = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_half_fov(p_camera_attributes);
-	//	float lens_radius = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_lens_curvature_radius(p_camera_attributes);
+	//	float lens_radius = RSG::camera_attributes->camera_attributes_get_chromatic_aberration_angle_factor(p_camera_attributes);
 
 	//	bool use_jitter = RSG::camera_attributes->camera_attributes_get_dof_blur_use_jitter();
 	//	RS::DOFBokehShape bokeh_shape = RSG::camera_attributes->camera_attributes_get_dof_blur_bokeh_shape();
@@ -100,14 +100,16 @@ void ChromaticAberration::chromatic_aberration_process(const ChromaticAberration
 	//	push_constant.image_distance_green = image_distance_green - ca_axial_amount;
 	//	push_constant.image_distance_blue = image_distance_blue;
 	//	push_constant.focal_length = focal_length;
-	push_constant.lens_distance = lens_distance;
+	push_constant.max_distance = max_distance;
 	push_constant.lens_center_line = lens_center_line;
 	push_constant.sensor_half_diagonal = sensor_diagonal;
 	push_constant.diagonal_half_fov = half_fov;
-	push_constant.curvature_radius = curvature_radius;
-	push_constant.refract_index_blue = refract_index_blue;
-	push_constant.refract_index_green = refract_index_blue - 0.01;
-	push_constant.refract_index_red = refract_index_blue - 0.02;
+	push_constant.angle_factor = angle_factor;
+	push_constant.refract_index_blue = refract_index_offset;
+	// push_constant.refract_index_green = refract_index_blue - 0.01;
+	// push_constant.refract_index_red = refract_index_blue - 0.02;
+	push_constant.refract_index_green = 1.0 + refract_index_offset;
+	push_constant.refract_index_red = 1.0 + 2.0 * refract_index_offset;
 	push_constant.apothem = apothem;
 	push_constant.focal_length = focal_length;
 
@@ -148,13 +150,13 @@ void ChromaticAberration::chromatic_aberration_process(const ChromaticAberration
 	RD::Uniform u_base_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.base_texture }));
 	//	RD::Uniform u_depth_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.depth_texture }));
 	RD::Uniform u_secondary_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.secondary_texture }));
-	// RD::Uniform u_half_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.half_texture }));
+	RD::Uniform u_half_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.half_texture }));
 	//	RD::Uniform u_half_texture0(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.half_texture[0] }));
 	//	RD::Uniform u_half_texture1(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.half_texture[1] }));
 
 	RD::Uniform u_base_image(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.base_texture);
 	RD::Uniform u_secondary_image(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.secondary_texture);
-	//	RD::Uniform u_half_image(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.half_texture);
+	RD::Uniform u_half_image(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.half_texture);
 
 	//	RD::Uniform u_half_image0(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.half_texture[0]);
 	//	RD::Uniform u_half_image1(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers.half_texture[1]);
@@ -169,17 +171,17 @@ void ChromaticAberration::chromatic_aberration_process(const ChromaticAberration
 
 	RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[NORMAL]);
 
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_secondary_image), 0);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_base_texture), 1);
+	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_half_image), 0);
+	//RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_base_texture), 1);
 
 	// RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_depth_texture), 1);
 
-	push_constant.size[0] = p_buffers.base_texture_size.x;
-	push_constant.size[1] = p_buffers.base_texture_size.y;
+	push_constant.size[0] = p_buffers.base_texture_size.x >> 1;
+	push_constant.size[1] = p_buffers.base_texture_size.y >> 1;
 
 	RD::get_singleton()->compute_list_set_push_constant(compute_list, &push_constant, sizeof(ChromaticAberrationPushConstant));
 
-	RD::get_singleton()->compute_list_dispatch_threads(compute_list, p_buffers.base_texture_size.x, p_buffers.base_texture_size.y, 1);
+	RD::get_singleton()->compute_list_dispatch_threads(compute_list, push_constant.size[0], push_constant.size[1], 1);
 	RD::get_singleton()->compute_list_add_barrier(compute_list);
 
 	shader = ca_shader.version_get_shader(shader_version, COMPOSITE);
@@ -187,10 +189,10 @@ void ChromaticAberration::chromatic_aberration_process(const ChromaticAberration
 
 	RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[COMPOSITE]);
 
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_secondary_texture), 1);
+	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_half_texture), 1);
 	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_base_image), 0);
 	RD::get_singleton()->compute_list_set_push_constant(compute_list, &push_constant, sizeof(ChromaticAberrationPushConstant));
-	RD::get_singleton()->compute_list_dispatch_threads(compute_list, p_buffers.base_texture_size.x, p_buffers.base_texture_size.y, 1);
+	RD::get_singleton()->compute_list_dispatch_threads(compute_list, push_constant.size[0], push_constant.size[1], 1);
 
 	RD::get_singleton()->compute_list_end();
 }

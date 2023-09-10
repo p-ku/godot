@@ -185,7 +185,7 @@ uint64_t RendererCameraAttributes::camera_attributes_get_auto_exposure_version(R
 	return cam_attributes->auto_exposure_version;
 }
 
-void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_camera_attributes, float p_focal_length, float p_lens_distance, float p_sensor_diagonal, float p_lens_center_line, float p_refract_index, float p_curvature_radius, float p_diagonal_fov, float p_apothem) {
+void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_camera_attributes, float p_angle_factor, float p_max_distance, float p_sensor_diagonal, float p_lens_center_line, float p_refract_index, float p_curvature_radius, float p_diagonal_fov, float p_apothem) {
 	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
 	ERR_FAIL_COND(!cam_attributes);
 #ifdef DEBUG_ENABLED
@@ -200,17 +200,17 @@ void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_
 	//	cam_attributes->chromatic_aberration_image_distance_green = p_image_distance_green;
 	//	cam_attributes->chromatic_aberration_image_distance_blue = p_image_distance_blue;
 
-	cam_attributes->chromatic_aberration_lens_distance = p_lens_distance;
+	cam_attributes->chromatic_aberration_max_distance = p_max_distance;
 	cam_attributes->chromatic_aberration_lens_center_line = p_lens_center_line;
 	cam_attributes->chromatic_aberration_refract_index = p_refract_index;
 	cam_attributes->chromatic_aberration_sensor_diagonal = p_sensor_diagonal;
 	cam_attributes->chromatic_aberration_curvature_radius = p_curvature_radius;
 	cam_attributes->chromatic_aberration_diagonal_fov = p_diagonal_fov;
 	cam_attributes->chromatic_aberration_diagonal_fov = p_apothem;
-	cam_attributes->chromatic_aberration_focal_length = p_focal_length;
+	cam_attributes->chromatic_aberration_angle_factor = p_angle_factor;
 
 	//	cam_attributes->chromatic_aberration_image_distance = p_half_fov;
-	//	cam_attributes->chromatic_aberration_lens_curvature_radius = p_lens_radius;
+	//	cam_attributes->chromatic_aberration_angle_factor = p_lens_radius;
 }
 
 // float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_axial_amount(RID p_camera_attributes) {
@@ -243,10 +243,10 @@ void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_
 //	return cam_attributes->chromatic_aberration_image_distance_red;
 //}
 
-float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_lens_distance(RID p_camera_attributes) {
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_max_distance(RID p_camera_attributes) {
 	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
 	ERR_FAIL_COND_V(!cam_attributes, 0.0);
-	return cam_attributes->chromatic_aberration_lens_distance;
+	return cam_attributes->chromatic_aberration_max_distance;
 }
 
 float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_refract_index(RID p_camera_attributes) {
@@ -261,10 +261,10 @@ float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_lens_
 	return cam_attributes->chromatic_aberration_lens_center_line;
 }
 
-float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_curvature_radius(RID p_camera_attributes) {
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_angle_factor(RID p_camera_attributes) {
 	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
 	ERR_FAIL_COND_V(!cam_attributes, 0.0);
-	return cam_attributes->chromatic_aberration_curvature_radius;
+	return cam_attributes->chromatic_aberration_angle_factor;
 }
 
 float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_sensor_diagonal(RID p_camera_attributes) {
@@ -290,8 +290,8 @@ float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_focal
 	ERR_FAIL_COND_V(!cam_attributes, 0.0);
 	return cam_attributes->chromatic_aberration_focal_length;
 }
-// float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_lens_curvature_radius(RID p_camera_attributes) {
+// float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_angle_factor(RID p_camera_attributes) {
 // 	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
 // 	ERR_FAIL_COND_V(!cam_attributes, 0.0);
-// 	return cam_attributes->chromatic_aberration_lens_curvature_radius;
+// 	return cam_attributes->chromatic_aberration_angle_factor;
 // }

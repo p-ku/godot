@@ -66,15 +66,16 @@ private:
 
 		float chromatic_aberration_lens_center_line = 0.0;
 		float chromatic_aberration_sensor_diagonal = 0.0;
-		float chromatic_aberration_lens_distance = 35.0;
+		float chromatic_aberration_max_distance = 89.0;
 		float chromatic_aberration_refract_index = 1.4;
 		float chromatic_aberration_curvature_radius = 35.0;
 		float chromatic_aberration_diagonal_fov = 35.0;
 		float chromatic_aberration_apothem = 0.0;
 		float chromatic_aberration_focal_length = 35.0;
+		float chromatic_aberration_angle_factor = 1.0;
 
 		// float chromatic_aberration_half_fov = 0.0;
-		//	float chromatic_aberration_lens_curvature_radius = 0.0;
+		//	float chromatic_aberration_angle_factor = 0.0;
 	};
 
 	RS::DOFBlurQuality dof_blur_quality = RS::DOF_BLUR_QUALITY_MEDIUM;
@@ -138,16 +139,16 @@ public:
 	//	float camera_attributes_get_chromatic_aberration_image_distance_green(RID p_camera_attributes);
 	//	float camera_attributes_get_chromatic_aberration_image_distance_blue(RID p_camera_attributes);
 
-	float camera_attributes_get_chromatic_aberration_lens_distance(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_max_distance(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_refract_index(RID p_camera_attributes);
-	float camera_attributes_get_chromatic_aberration_curvature_radius(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_angle_factor(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_lens_center_line(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_sensor_diagonal(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_diagonal_fov(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_apothem(RID p_camera_attributes);
 	float camera_attributes_get_chromatic_aberration_focal_length(RID p_camera_attributes);
 
-	//	float camera_attributes_get_chromatic_aberration_lens_curvature_radius(RID p_camera_attributes);
+	//	float camera_attributes_get_chromatic_aberration_angle_factor(RID p_camera_attributes);
 
 	_FORCE_INLINE_ RS::DOFBlurQuality camera_attributes_get_dof_blur_quality() {
 		return dof_blur_quality;

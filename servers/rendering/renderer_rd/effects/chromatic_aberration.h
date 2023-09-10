@@ -55,10 +55,10 @@ private:
 		//float image_distance_blue;
 		//float focal_length;
 
-		float lens_distance;
+		float max_distance;
 		float lens_center_line;
 		float sensor_half_diagonal;
-		float curvature_radius;
+		float angle_factor;
 
 		float diagonal_half_fov;
 		float refract_index_red;
@@ -99,7 +99,7 @@ public:
 		// textures
 		Size2i base_texture_size;
 		RID base_texture;
-		//	RID half_texture;
+		RID half_texture;
 
 		//	RID depth_texture;
 		RID secondary_texture;

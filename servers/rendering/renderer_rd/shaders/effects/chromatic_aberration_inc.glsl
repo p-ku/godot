@@ -28,10 +28,10 @@ layout(push_constant, std430) uniform Params {
 	float ca_axial;
 	float ca_transverse;
 
-	float lens_distance;
+	float max_distance;
 	float lens_center_line;
 	float sensor_half_diagonal;
-	float curvature_radius;
+	float angle_factor;
 
 	float diagonal_half_fov;
 	float refract_index_red;

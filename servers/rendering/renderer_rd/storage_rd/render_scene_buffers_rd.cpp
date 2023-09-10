@@ -531,6 +531,74 @@ void RenderSceneBuffersRD::allocate_blur_textures() {
 	}
 }
 
+void RenderSceneBuffersRD::allocate_ca_textures() {
+	if (has_texture(RB_SCOPE_BUFFERS, RB_TEX_CA_0)) {
+		// already allocated...
+		return;
+	}
+
+	uint32_t mipmaps_required = Image::get_image_required_mipmaps(internal_size.x, internal_size.y, Image::FORMAT_RGBAH);
+
+	uint32_t usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_CAN_COPY_TO_BIT;
+	if (can_be_storage) {
+		usage_bits += RD::TEXTURE_USAGE_STORAGE_BIT;
+	} else {
+		usage_bits += RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+	}
+
+	//create_texture(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, internal_size, view_count, mipmaps_required);
+	create_texture(RB_SCOPE_BUFFERS, RB_TEX_CA_0, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y >> 1), view_count, mipmaps_required - 1);
+
+	// create_texture(RB_SCOPE_BUFFERS, RB_TEX_CA_0, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y >> 1), view_count, mipmaps_required - 1);
+
+	// if !can_be_storage we need a half width version
+	// if (!can_be_storage) {
+	// 	create_texture(RB_SCOPE_BUFFERS, RB_TEX_HALF_BLUR, base_data_format, usage_bits, RD::TEXTURE_SAMPLES_1, Size2i(internal_size.x >> 1, internal_size.y), 1, mipmaps_required);
+	// }
+
+	// TODO redo this:
+	if (!can_be_storage) {
+		// create 4 weight textures, 2 full size, 2 half size
+
+		RD::TextureFormat tf;
+		tf.format = RD::DATA_FORMAT_R16_SFLOAT; // We could probably use DATA_FORMAT_R8_SNORM if we don't pre-multiply by blur_size but that depends on whether we can remove DEPTH_GAP
+		tf.width = internal_size.x;
+		tf.height = internal_size.y;
+		tf.texture_type = RD::TEXTURE_TYPE_2D;
+		tf.array_layers = 1; // Our DOF effect handles one eye per turn
+		tf.usage_bits = RD::TEXTURE_USAGE_SAMPLING_BIT | RD::TEXTURE_USAGE_CAN_COPY_TO_BIT | RD::TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
+		tf.mipmaps = 1;
+		for (uint32_t i = 0; i < 2; i++) {
+			// associated blur texture
+			RID texture;
+			if (i == 1) {
+				texture = get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
+			} // else if (i == 2) {
+			//			texture = get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
+			//		} else if (i == 3) {
+			//			texture = get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 1);
+			//		}
+
+			// create weight texture
+			weight_buffers[i].weight = RD::get_singleton()->texture_create(tf, RD::TextureView());
+
+			// create frame buffer
+			Vector<RID> fb;
+			if (i != 0) {
+				fb.push_back(texture);
+			}
+			fb.push_back(weight_buffers[i].weight);
+			weight_buffers[i].fb = RD::get_singleton()->framebuffer_create(fb);
+
+			if (i == 1) {
+				// next 2 are half size
+				tf.width = MAX(1u, tf.width >> 1);
+				tf.height = MAX(1u, tf.height >> 1);
+			}
+		}
+	}
+}
+
 // Data buffers
 
 bool RenderSceneBuffersRD::has_custom_data(const StringName &p_name) {

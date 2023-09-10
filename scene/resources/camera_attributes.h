@@ -58,7 +58,7 @@ protected:
 
 	// float chromatic_aberration_axial_amount = 0.0;
 	//	float chromatic_aberration_transverse_amount = 0.0;
-	float chromatic_aberration_lens_curvature_radius = 1.0;
+	float chromatic_aberration_angle_factor = 1.0;
 	float chromatic_aberration_lens_elongation = 0.0;
 	float chromatic_aberration_refractive_index_offset = 0.0;
 
@@ -84,8 +84,8 @@ public:
 	//	float get_chromatic_aberration_transverse_amount() const;
 	void set_chromatic_aberration_lens_elongation(float p_chromatic_aberration_lens_elongation);
 	float get_chromatic_aberration_lens_elongation() const;
-	void set_chromatic_aberration_lens_curvature_radius(float p_chromatic_aberration_lens_curvature_radius);
-	float get_chromatic_aberration_lens_curvature_radius() const;
+	void set_chromatic_aberration_angle_factor(float p_chromatic_aberration_angle_factor);
+	float get_chromatic_aberration_angle_factor() const;
 	void set_chromatic_aberration_refractive_index_offset(float p_chromatic_aberration_refractive_index_offset);
 	float get_chromatic_aberration_refractive_index_offset() const;
 

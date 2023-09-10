@@ -55,7 +55,7 @@
 #define RB_TEX_BLUR_1 SNAME("blur_1")
 #define RB_TEX_HALF_BLUR SNAME("half_blur") // only for raster!
 
-// #define RB_TEX_CA_0 SNAME("ca_0")
+#define RB_TEX_CA_0 SNAME("ca_0")
 
 #define RB_TEX_BACK_DEPTH SNAME("back_depth")
 
@@ -192,6 +192,7 @@ public:
 
 	// Allocate shared buffers
 	void allocate_blur_textures();
+	void allocate_ca_textures();
 
 	// Custom data
 	bool has_custom_data(const StringName &p_name);

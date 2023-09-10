@@ -410,8 +410,8 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 
 		for (uint32_t i = 0; i < rb->get_view_count(); i++) {
 			ca_buffers.base_texture = rb->get_internal_texture(i);
-			ca_buffers.secondary_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
-			//	ca_buffers.half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
+			//	ca_buffers.secondary_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
+			ca_buffers.half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
 
 			chromatic_aberration->chromatic_aberration_process(ca_buffers, p_render_data->camera_attributes);
 		}
