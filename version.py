@@ -7,4 +7,4 @@ status = "rc"
 module_config = ""
 year = 2023
 website = "https://godotengine.org"
-docs = "4.2"
+docs = "latest"
