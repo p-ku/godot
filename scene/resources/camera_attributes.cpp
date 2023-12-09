@@ -91,6 +91,89 @@ float CameraAttributes::get_auto_exposure_scale() const {
 	return auto_exposure_scale;
 }
 
+void CameraAttributes::set_chromatic_aberration_enabled(bool p_enabled) {
+	chromatic_aberration_enabled = p_enabled;
+	_update_chromatic_aberration();
+	notify_property_list_changed();
+}
+
+bool CameraAttributes::is_chromatic_aberration_enabled() const {
+	return chromatic_aberration_enabled;
+}
+
+void CameraAttributes::set_chromatic_aberration_quality(float p_chromatic_aberration_quality) {
+	chromatic_aberration_quality = p_chromatic_aberration_quality;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_quality() const {
+	return chromatic_aberration_quality;
+}
+
+void CameraAttributes::set_chromatic_aberration_curve(float p_chromatic_aberration_curve) {
+	chromatic_aberration_curve = p_chromatic_aberration_curve;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_curve() const {
+	return chromatic_aberration_curve;
+}
+
+void CameraAttributes::set_chromatic_aberration_intensity(float p_chromatic_aberration_intensity) {
+	chromatic_aberration_intensity = p_chromatic_aberration_intensity;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_intensity() const {
+	return chromatic_aberration_intensity;
+}
+
+void CameraAttributes::set_chromatic_aberration_center_offset(float p_chromatic_aberration_center_offset) {
+	chromatic_aberration_center_offset = p_chromatic_aberration_center_offset;
+	_update_chromatic_aberration();
+}
+
+float CameraAttributes::get_chromatic_aberration_center_offset() const {
+	return chromatic_aberration_center_offset;
+}
+
+void CameraAttributes::_update_chromatic_aberration() {
+	//	float refract_index_green = 1.0 + chromatic_aberration_intensity;
+	//	float refract_index_red = refract_index_green + chromatic_aberration_intensity;
+	//float refract_distance = atan(2.0 * chromatic_aberration_intensity);
+	float max_incident_angle = 0.5 * Math_PI * chromatic_aberration_curve;
+	float lens_distance = 1.0 / tan(max_incident_angle);
+	// float max_refract_distance = chromatic_aberration_intensity;
+	float max_refract_distance = chromatic_aberration_intensity * 0.33;
+	float refract_angle = atan((1.0 + max_refract_distance) / lens_distance);
+	float refract_index_blue = sin(refract_angle) / sin(max_incident_angle);
+	float refract_index_green = 1.0 + 0.5 * (refract_index_blue - 1.0);
+
+	// float refract_index_red = max_refract_index_red + (1.0 - max_refract_index_red) * (1.0 - chromatic_aberration_intensity);
+	// float critical_angle = asin(1.0 / refract_index_red);
+	// float max_incident_angle = critical_angle * chromatic_aberration_curve;
+	//	float max_angle = critical_angle * chromatic_aberration_curve;
+	//	float max_distance = tan(critical_angle * chromatic_aberration_curve);
+
+	//float lens_distance = 1.0 / tan(critical_angle * chromatic_aberration_curve);
+	// float lens_distance = 1.0 / chromatic_aberration_curve;
+
+	//	float max_refraction_angle = asin(refract_index_red * sin(critical_angle));
+
+	//	float refracted_difference = lens_distance * tan(max_refraction_angle);
+	//	float x = lens_distance * tan(critical_angle);
+
+	RS::get_singleton()->camera_attributes_set_chromatic_aberration(
+			camera_attributes,
+			chromatic_aberration_enabled,
+			chromatic_aberration_quality,
+			refract_index_green,
+			refract_index_blue,
+			chromatic_aberration_intensity,
+			chromatic_aberration_center_offset,
+			chromatic_aberration_curve);
+}
+
 RID CameraAttributes::get_rid() const {
 	return camera_attributes;
 }
@@ -120,6 +203,17 @@ void CameraAttributes::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_auto_exposure_scale", "exposure_grey"), &CameraAttributes::set_auto_exposure_scale);
 	ClassDB::bind_method(D_METHOD("get_auto_exposure_scale"), &CameraAttributes::get_auto_exposure_scale);
 
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_enabled", "enabled"), &CameraAttributes::set_chromatic_aberration_enabled);
+	ClassDB::bind_method(D_METHOD("is_chromatic_aberration_enabled"), &CameraAttributes::is_chromatic_aberration_enabled);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_quality", "chromatic_aberration_quality"), &CameraAttributes::set_chromatic_aberration_quality);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_quality"), &CameraAttributes::get_chromatic_aberration_quality);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_curve", "chromatic_aberration_curve"), &CameraAttributes::set_chromatic_aberration_curve);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_curve"), &CameraAttributes::get_chromatic_aberration_curve);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_intensity"), &CameraAttributes::get_chromatic_aberration_intensity);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_intensity", "chromatic_aberration_intensity"), &CameraAttributes::set_chromatic_aberration_intensity);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_center_offset"), &CameraAttributes::get_chromatic_aberration_center_offset);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_center_offset", "chromatic_aberration_center_offset"), &CameraAttributes::set_chromatic_aberration_center_offset);
+
 	ADD_GROUP("Exposure", "exposure_");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_sensitivity", PROPERTY_HINT_RANGE, "0.1,32000.0,0.1,suffix:ISO"), "set_exposure_sensitivity", "get_exposure_sensitivity");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "exposure_multiplier", PROPERTY_HINT_RANGE, "0.0,8.0,0.001,or_greater"), "set_exposure_multiplier", "get_exposure_multiplier");
@@ -128,6 +222,13 @@ void CameraAttributes::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "auto_exposure_enabled"), "set_auto_exposure_enabled", "is_auto_exposure_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_scale", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_scale", "get_auto_exposure_scale");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "auto_exposure_speed", PROPERTY_HINT_RANGE, "0.01,64,0.01"), "set_auto_exposure_speed", "get_auto_exposure_speed");
+
+	ADD_GROUP("Chromatic Aberration", "chromatic_aberration_");
+	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_enabled"), "set_chromatic_aberration_enabled", "is_chromatic_aberration_enabled");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_quality", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_quality", "get_chromatic_aberration_quality");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_curve", PROPERTY_HINT_RANGE, "0.00,1.0,0.01"), "set_chromatic_aberration_curve", "get_chromatic_aberration_curve");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_intensity", PROPERTY_HINT_RANGE, "0.01,0.99,0.01"), "set_chromatic_aberration_intensity", "get_chromatic_aberration_intensity");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_center_offset", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_center_offset", "get_chromatic_aberration_center_offset");
 }
 
 CameraAttributes::CameraAttributes() {

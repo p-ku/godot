@@ -55,6 +55,13 @@ protected:
 	float auto_exposure_scale = 0.4;
 	virtual void _update_auto_exposure(){};
 
+	bool chromatic_aberration_enabled = false;
+	float chromatic_aberration_quality = 0.5;
+	float chromatic_aberration_curve = 1.0;
+	float chromatic_aberration_intensity = 0.5;
+	float chromatic_aberration_center_offset = 0.0;
+	void _update_chromatic_aberration();
+
 public:
 	virtual RID get_rid() const override;
 	virtual float calculate_exposure_normalization() const { return 1.0; }
@@ -70,6 +77,17 @@ public:
 	float get_auto_exposure_speed() const;
 	void set_auto_exposure_scale(float p_auto_exposure_scale);
 	float get_auto_exposure_scale() const;
+
+	void set_chromatic_aberration_enabled(bool p_enabled);
+	bool is_chromatic_aberration_enabled() const;
+	void set_chromatic_aberration_quality(float p_quality);
+	float get_chromatic_aberration_quality() const;
+	void set_chromatic_aberration_curve(float p_curve);
+	float get_chromatic_aberration_curve() const;
+	void set_chromatic_aberration_intensity(float p_intensity);
+	float get_chromatic_aberration_intensity() const;
+	void set_chromatic_aberration_center_offset(float p_offset);
+	float get_chromatic_aberration_center_offset() const;
 
 	CameraAttributes();
 	~CameraAttributes();
