@@ -50,6 +50,15 @@ private:
 		float auto_exposure_scale = 1.0;
 		uint64_t auto_exposure_version = 0;
 
+		bool use_chromatic_aberration = false;
+		float chromatic_aberration_quality = 0.5;
+		float chromatic_aberration_lens_distance = 1.0;
+		float chromatic_aberration_refract_index_blue = 1.4;
+		float chromatic_aberration_refract_index_green = 1.4;
+		float chromatic_aberration_intensity = 0.5;
+		float chromatic_aberration_center_offset = 0.0;
+		float chromatic_aberration_curve = 1.0;
+
 		bool dof_blur_far_enabled = false;
 		float dof_blur_far_distance = 10;
 		float dof_blur_far_transition = 5;
@@ -111,6 +120,21 @@ public:
 		CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
 
 		return cam_attributes && cam_attributes->use_auto_exposure;
+	}
+
+	void camera_attributes_set_chromatic_aberration(RID p_camera_attributes, bool p_enable, float p_quality, float p_refract_index_green, float p_refract_index_blue, float p_intensity, float p_center_offset, float p_curve);
+	float camera_attributes_get_chromatic_aberration_quality(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_lens_distance(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_refract_index_blue(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_refract_index_green(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_intensity(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_center_offset(RID p_camera_attributes);
+	float camera_attributes_get_chromatic_aberration_curve(RID p_camera_attributes);
+
+	_FORCE_INLINE_ bool camera_attributes_uses_chromatic_aberration(RID p_camera_attributes) {
+		CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+
+		return cam_attributes && cam_attributes->use_chromatic_aberration;
 	}
 
 	_FORCE_INLINE_ RS::DOFBlurQuality camera_attributes_get_dof_blur_quality() {

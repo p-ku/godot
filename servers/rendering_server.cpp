@@ -3021,6 +3021,8 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("camera_attributes_set_exposure", "camera_attributes", "multiplier", "normalization"), &RenderingServer::camera_attributes_set_exposure);
 	ClassDB::bind_method(D_METHOD("camera_attributes_set_auto_exposure", "camera_attributes", "enable", "min_sensitivity", "max_sensitivity", "speed", "scale"), &RenderingServer::camera_attributes_set_auto_exposure);
 
+	ClassDB::bind_method(D_METHOD("camera_attributes_set_chromatic_aberration", "camera_attributes", "enable", "quality", "refract_index_green", "refract_index_blue", "intensity", "center_offset", "curve"), &RenderingServer::camera_attributes_set_chromatic_aberration);
+
 	BIND_ENUM_CONSTANT(DOF_BOKEH_BOX);
 	BIND_ENUM_CONSTANT(DOF_BOKEH_HEXAGON);
 	BIND_ENUM_CONSTANT(DOF_BOKEH_CIRCLE);

@@ -1211,6 +1211,8 @@ public:
 	virtual void camera_attributes_set_exposure(RID p_camera_attributes, float p_multiplier, float p_exposure_normalization) = 0;
 	virtual void camera_attributes_set_auto_exposure(RID p_camera_attributes, bool p_enable, float p_min_sensitivity, float p_max_sensitivity, float p_speed, float p_scale) = 0;
 
+	virtual void camera_attributes_set_chromatic_aberration(RID p_camera_attributes, bool p_enable, float p_quality, float p_refract_index_green, float p_refract_index_blue, float p_intensity, float p_center_offset, float p_curve) = 0;
+
 	/* SCENARIO API */
 
 	virtual RID scenario_create() = 0;

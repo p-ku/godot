@@ -184,3 +184,66 @@ uint64_t RendererCameraAttributes::camera_attributes_get_auto_exposure_version(R
 	ERR_FAIL_NULL_V(cam_attributes, 0);
 	return cam_attributes->auto_exposure_version;
 }
+
+void RendererCameraAttributes::camera_attributes_set_chromatic_aberration(RID p_camera_attributes, bool p_enable, float p_quality, float p_refract_index_green, float p_refract_index_blue, float p_intensity, float p_center_offset, float p_curve) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND(!cam_attributes);
+// if (!cam_attributes->use_chromatic_aberration && p_enable) {
+// 	cam_attributes->auto_exposure_version = ++auto_exposure_counter;
+// }
+#ifdef DEBUG_ENABLED
+	// if (OS::get_singleton()->get_current_rendering_method() == "gl_compatibility" && (p_axial > 0.0 || p_transverse > 0.0)) {
+	if (OS::get_singleton()->get_current_rendering_method() == "gl_compatibility") {
+		WARN_PRINT_ONCE_ED("Chromatic aberration is only available when using the Forward+ or Mobile rendering backends.");
+	}
+#endif
+	cam_attributes->use_chromatic_aberration = p_enable;
+	cam_attributes->chromatic_aberration_quality = p_quality;
+	cam_attributes->chromatic_aberration_refract_index_blue = p_refract_index_blue;
+	cam_attributes->chromatic_aberration_refract_index_green = p_refract_index_green;
+	cam_attributes->chromatic_aberration_intensity = p_intensity;
+	cam_attributes->chromatic_aberration_center_offset = p_center_offset;
+	cam_attributes->chromatic_aberration_curve = p_curve;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_quality(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_quality;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_lens_distance(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_lens_distance;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_refract_index_blue(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_refract_index_blue;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_refract_index_green(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_refract_index_green;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_intensity(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_intensity;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_center_offset(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_center_offset;
+}
+
+float RendererCameraAttributes::camera_attributes_get_chromatic_aberration_curve(RID p_camera_attributes) {
+	CameraAttributes *cam_attributes = camera_attributes_owner.get_or_null(p_camera_attributes);
+	ERR_FAIL_COND_V(!cam_attributes, 0.0);
+	return cam_attributes->chromatic_aberration_curve;
+}
