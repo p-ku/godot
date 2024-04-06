@@ -1075,6 +1075,26 @@
 				If [param enable] is [code]true[/code], enables bicubic upscaling for glow which improves quality at the cost of performance. Equivalent to [member ProjectSettings.rendering/environment/glow/upscale_mode].
 			</description>
 		</method>
+		<method name="environment_set_chromatic_aberration">
+			<return type="void" />
+			<param index="0" name="env" type="RID" />
+			<param index="1" name="enable" type="bool" />
+			<param index="2" name="quality" type="float" />
+			<param index="3" name="edge_amount" type="float" />
+			<param index="4" name="linear_amount" type="float" />
+			<param index="5" name="center" type="Vector2" />
+			<param index="6" name="circular" type="bool" />
+			<param index="7" name="minimum_distance" type="float" />
+			<param index="8" name="desaturation" type="float" />
+			<param index="9" name="jitter_amount" type="float" />
+			<param index="10" name="horizontal_smear" type="float" />
+			<param index="11" name="vertical_smear" type="float" />
+			<param index="12" name="spectrum_changed" type="bool" />
+			<param index="13" name="refraction_changed" type="bool" />
+			<description>
+				Sets the values to be used with the "chromatic aberration" post-process effect. See [Environment] for more details.
+			</description>
+		</method>
 		<method name="environment_set_adjustment">
 			<return type="void" />
 			<param index="0" name="env" type="RID" />

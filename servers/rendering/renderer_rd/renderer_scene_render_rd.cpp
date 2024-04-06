@@ -498,6 +498,78 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		RD::get_singleton()->draw_command_end_label();
 	}
 
+	if (can_use_effects && p_render_data->environment.is_valid() && environment_get_chromatic_aberration_enabled(p_render_data->environment)) {
+		RENDER_TIMESTAMP("Chromatic Aberration");
+		RD::get_singleton()->draw_command_begin_label("Chromatic aberration");
+
+		Ref<RendererRD::ChromaticAberration::ChromaticAberrationBuffers> ca_buffers = chromatic_aberration->get_buffers(rb, p_render_data->environment);
+
+		Size2i full_size = rb->get_internal_size();
+		Point2 center = 0.5 * Size2(full_size);
+
+		float diagonal = center.length();
+		Size2i half_size = Size2i((full_size.x % 2) + (full_size.x >> 1), (full_size.y % 2) + (full_size.y >> 1));
+		//	half_size.x = full_size.x >> 1;
+		//	half_size.y = full_size.y >> 1;
+		//	half_size.x = (full_size.x % 2) + (full_size.x >> 1);
+		//		half_size.y = (full_size.y % 2) + (full_size.y >> 1);
+		//	half_size = center;
+		RID texture = rb->get_internal_texture();
+
+		uint64_t stored_spectrum_version = environment_get_chromatic_aberration_spectrum_version(p_render_data->environment);
+		//	if (stored_spectrum_version != rb->get_chromatic_aberration_spectrum_version() || chromatic_aberration->refraction_size.x != size.x || chromatic_aberration->refraction_size.y != size.y) {
+		chromatic_aberration->initialize_spectrum_texture(p_render_data->environment, ca_buffers->spectrum);
+		rb->set_chromatic_aberration_spectrum_version(stored_spectrum_version);
+		//	}
+		float minimum_distance = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_edge_amount(p_render_data->environment);
+
+		//	if (!rb->has_texture(RB_CHROMATIC_ABERRATION_BUFFERS, REFRACTION_BUFFER)) {
+		//	RenderingDevice::TextureFormat format = RD::get_singleton()->texture_get_format(ca_buffers->refraction);
+
+		uint64_t stored_refraction_version = environment_get_chromatic_aberration_refraction_version(p_render_data->environment);
+		//	if (stored_refraction_version != rb->get_chromatic_aberration_refraction_version() || chromatic_aberration->refraction_size.x != size.x || chromatic_aberration->refraction_size.y != size.y) {
+		//	if (chromatic_aberration->refraction_size.x != size.x || chromatic_aberration->refraction_size.y != size.y) {
+		//			chromatic_aberration->refraction_size = size;
+		chromatic_aberration->update_refraction_texture(ca_buffers->refraction, p_render_data->environment, half_size, full_size, center, diagonal);
+		//		WARN_PRINT("yahoo");
+		//	rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
+		chromatic_aberration->refraction_size = full_size;
+		//	}
+		//	if (stored_refraction_version != rb->get_chromatic_aberration_refraction_version()) {
+		//		rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
+		//	}
+
+		// Ref<RendererRD::ChromaticAberration::CACustomBuffers> ca_custom_buffers = chromatic_aberration->get_ca_buffers(rb);
+		rb->allocate_blur_textures();
+		RID half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
+
+		for (uint32_t i = 0; i < rb->get_view_count(); i++) {
+			chromatic_aberration->chromatic_aberration_process(texture, half_texture, half_size, full_size, center, diagonal, rb, ca_buffers, p_render_data->environment);
+		}
+		RD::get_singleton()->draw_command_end_label();
+	}
+	// if (can_use_effects && RSG::camera_attributes->camera_attributes_uses_chromatic_aberration(p_render_data->camera_attributes)) {
+	// 	RENDER_TIMESTAMP("Chromatic Aberration");
+	// 	RD::get_singleton()->draw_command_begin_label("Chromatic aberration");
+	// 	//	rb->allocate_blur_textures();
+
+	// 	Ref<RendererRD::ChromaticAberration::ChromaticAberrationBuffers> ca_storage_buffers = chromatic_aberration->get_ca_buffers(rb);
+	// 	RendererRD::ChromaticAberration::ChromaticAberrationBuffers ca_buffers;
+	// 	ca_buffers.base_texture_size = rb->get_internal_size();
+
+	// 	for (uint32_t i = 0; i < rb->get_view_count(); i++) {
+	// 		ca_buffers.base_texture = rb->get_internal_texture(i);
+	// 		ca_buffers.secondary_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
+	// 		//	ca_buffers.half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
+	// 		RID ca_texture;
+	// 		ca_texture = chromatic_aberration->get_current_ca_buffer(rb); // this will return and empty RID if we don't have a ca buffer
+	// 		if (ca_texture.is_null()) {
+	// 					}
+	// 		chromatic_aberration->chromatic_aberration_process(ca_storage_buffers, ca_buffers, p_render_data->camera_attributes);
+	// 	}
+	// 	RD::get_singleton()->draw_command_end_label();
+	// }
+
 	{
 		RENDER_TIMESTAMP("Tonemap");
 		RD::get_singleton()->draw_command_begin_label("Tonemap");
@@ -1360,6 +1432,7 @@ void RendererSceneRenderRD::init() {
 	bool can_use_storage = _render_buffers_can_be_storage();
 	bool can_use_vrs = is_vrs_supported();
 	bokeh_dof = memnew(RendererRD::BokehDOF(!can_use_storage));
+	chromatic_aberration = memnew(RendererRD::ChromaticAberration(!can_use_storage));
 	copy_effects = memnew(RendererRD::CopyEffects(!can_use_storage));
 	debug_effects = memnew(RendererRD::DebugEffects);
 	luminance = memnew(RendererRD::Luminance(!can_use_storage));
@@ -1379,6 +1452,9 @@ RendererSceneRenderRD::~RendererSceneRenderRD() {
 
 	if (bokeh_dof) {
 		memdelete(bokeh_dof);
+	}
+	if (chromatic_aberration) {
+		memdelete(chromatic_aberration);
 	}
 	if (copy_effects) {
 		memdelete(copy_effects);

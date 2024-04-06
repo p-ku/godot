@@ -1260,6 +1260,21 @@ public:
 	PASS1(environment_set_sdfgi_frames_to_converge, RS::EnvironmentSDFGIFramesToConverge)
 	PASS1(environment_set_sdfgi_frames_to_update_light, RS::EnvironmentSDFGIFramesToUpdateLight)
 
+	// Chromatic Aberration
+	PASS14(environment_set_chromatic_aberration, RID, bool, float, float, float, const Vector2 &, bool, float, float, float, float, float, bool, bool)
+
+	PASS1RC(bool, environment_get_chromatic_aberration_enabled, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_quality, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_edge_amount, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_linear_amount, RID)
+	PASS1RC(Vector2, environment_get_chromatic_aberration_center, RID)
+	PASS1RC(bool, environment_get_chromatic_aberration_circular, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_minimum_distance, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_desaturation, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_jitter_amount, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_horizontal_smear, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_vertical_smear, RID)
+
 	// Adjustment
 	PASS7(environment_set_adjustment, RID, bool, float, float, float, bool, RID)
 

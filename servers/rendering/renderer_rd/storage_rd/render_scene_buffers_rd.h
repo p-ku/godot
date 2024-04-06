@@ -70,6 +70,8 @@ private:
 	RD::DataFormat base_data_format = RD::DATA_FORMAT_R16G16B16A16_SFLOAT;
 	RendererRD::VRS *vrs = nullptr;
 	uint64_t auto_exposure_version = 1;
+	uint64_t chromatic_aberration_spectrum_version = 1;
+	uint64_t chromatic_aberration_refraction_version = 1;
 
 	// Our render target represents our final destination that we display on screen.
 	RID render_target;
@@ -229,6 +231,12 @@ public:
 
 	uint64_t get_auto_exposure_version() const { return auto_exposure_version; }
 	void set_auto_exposure_version(const uint64_t p_auto_exposure_version) { auto_exposure_version = p_auto_exposure_version; }
+
+	uint64_t get_chromatic_aberration_spectrum_version() const { return chromatic_aberration_spectrum_version; }
+	void set_chromatic_aberration_spectrum_version(const uint64_t p_chromatic_aberration_spectrum_version) { chromatic_aberration_spectrum_version = p_chromatic_aberration_spectrum_version; }
+
+	uint64_t get_chromatic_aberration_refraction_version() const { return chromatic_aberration_refraction_version; }
+	void set_chromatic_aberration_refraction_version(const uint64_t p_chromatic_aberration_refraction_version) { chromatic_aberration_refraction_version = p_chromatic_aberration_refraction_version; }
 
 	// For our internal textures we provide some easy access methods.
 

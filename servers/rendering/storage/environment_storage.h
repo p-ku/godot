@@ -137,6 +137,23 @@ private:
 		float sdfgi_probe_bias = 1.1;
 		RS::EnvironmentSDFGIYScale sdfgi_y_scale = RS::ENV_SDFGI_Y_SCALE_75_PERCENT;
 
+		// Chromatic Aberration
+		bool chromatic_aberration_enabled = false;
+		float chromatic_aberration_quality = 0.5;
+		float chromatic_aberration_edge_amount = 0.5;
+		float chromatic_aberration_linear_amount = 0.0;
+		Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
+		bool chromatic_aberration_circular = true;
+		float chromatic_aberration_minimum_distance = 0.0;
+		float chromatic_aberration_desaturation = 0.0;
+		float chromatic_aberration_jitter_amount = 1.0;
+		float chromatic_aberration_horizontal_smear = 0.0;
+		float chromatic_aberration_vertical_smear = 0.0;
+		bool chromatic_aberration_spectrum_changed = true;
+		bool chromatic_aberration_refraction_changed = true;
+		uint64_t chromatic_aberration_spectrum_version = 0;
+		uint64_t chromatic_aberration_refraction_version = 0;
+
 		// Adjustments
 		bool adjustments_enabled = false;
 		float adjustments_brightness = 1.0f;
@@ -145,6 +162,9 @@ private:
 		bool use_1d_color_correction = false;
 		RID color_correction;
 	};
+
+	static uint64_t chromatic_aberration_spectrum_counter;
+	static uint64_t chromatic_aberration_refraction_counter;
 
 	mutable RID_Owner<Environment, true> environment_owner;
 
@@ -274,6 +294,22 @@ public:
 	float environment_get_sdfgi_normal_bias(RID p_env) const;
 	float environment_get_sdfgi_probe_bias(RID p_env) const;
 	RS::EnvironmentSDFGIYScale environment_get_sdfgi_y_scale(RID p_env) const;
+
+	// Chromatic Aberration
+	void environment_set_chromatic_aberration(RID p_env, bool p_enable, float p_quality, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, bool p_circular, float p_minimum_distance, float p_desaturation, float p_jitter_amount, float p_horizontal_smear, float p_vertical_smear, bool p_spectrum_changed, bool p_refraction_changed);
+	bool environment_get_chromatic_aberration_enabled(RID p_env) const;
+	float environment_get_chromatic_aberration_quality(RID p_env) const;
+	float environment_get_chromatic_aberration_edge_amount(RID p_env) const;
+	float environment_get_chromatic_aberration_linear_amount(RID p_env) const;
+	Vector2 environment_get_chromatic_aberration_center(RID p_env) const;
+	bool environment_get_chromatic_aberration_circular(RID p_env) const;
+	float environment_get_chromatic_aberration_minimum_distance(RID p_env) const;
+	float environment_get_chromatic_aberration_desaturation(RID p_env) const;
+	float environment_get_chromatic_aberration_jitter_amount(RID p_env) const;
+	float environment_get_chromatic_aberration_horizontal_smear(RID p_env) const;
+	float environment_get_chromatic_aberration_vertical_smear(RID p_env) const;
+	uint64_t environment_get_chromatic_aberration_spectrum_version(RID p_env) const;
+	uint64_t environment_get_chromatic_aberration_refraction_version(RID p_env) const;
 
 	// Adjustment
 	void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction);

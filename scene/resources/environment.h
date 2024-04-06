@@ -199,6 +199,30 @@ private:
 	float volumetric_fog_temporal_reproject_amount = 0.9;
 	void _update_volumetric_fog();
 
+	// Chromatic Aberration
+	bool chromatic_aberration_enabled = false;
+	float chromatic_aberration_quality = 0.5;
+	float chromatic_aberration_edge_amount = 0.5;
+	float chromatic_aberration_linear_amount = 0.0;
+	Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
+	bool chromatic_aberration_circular = true;
+	float chromatic_aberration_minimum_distance = 0.0;
+	float chromatic_aberration_desaturation = 0.0;
+	// PackedColorArray chromatic_aberration_colors = {
+	// 	Color(1.0, 0.0, 0.0),
+	// 	Color(0.0, 1.0, 0.0),
+	// 	Color(0.0, 0.0, 1.0)
+	// };
+	float chromatic_aberration_jitter_amount = 1.0;
+	float chromatic_aberration_horizontal_smear = 0.0;
+	float chromatic_aberration_vertical_smear = 0.0;
+
+	// Ref<Texture> spectrum;
+	bool spectrum_changed = true;
+	bool refraction_changed = true;
+
+	void _update_chromatic_aberration();
+
 	// Adjustment
 	bool adjustment_enabled = false;
 	float adjustment_brightness = 1.0;
@@ -418,6 +442,34 @@ public:
 	float get_adjustment_saturation() const;
 	void set_adjustment_color_correction(Ref<Texture> p_color_correction);
 	Ref<Texture> get_adjustment_color_correction() const;
+
+	// Chromatic Aberration
+	void set_chromatic_aberration_enabled(bool p_enabled);
+	bool is_chromatic_aberration_enabled() const;
+	void set_chromatic_aberration_quality(float p_quality);
+	float get_chromatic_aberration_quality() const;
+	void set_chromatic_aberration_edge_amount(float p_amount);
+	float get_chromatic_aberration_edge_amount() const;
+	void set_chromatic_aberration_linear_amount(float p_amount);
+	float get_chromatic_aberration_linear_amount() const;
+	void set_chromatic_aberration_center(Vector2 p_center);
+	Vector2 get_chromatic_aberration_center() const;
+	void set_chromatic_aberration_circular(bool p_center);
+	bool is_chromatic_aberration_circular() const;
+	void set_chromatic_aberration_minimum_distance(float p_distance);
+	float get_chromatic_aberration_minimum_distance() const;
+	void set_chromatic_aberration_desaturation(float p_desaturation);
+	float get_chromatic_aberration_desaturation() const;
+	//void set_chromatic_aberration_colors(PackedColorArray p_colors);
+	//PackedColorArray get_chromatic_aberration_colors() const;
+	void set_chromatic_aberration_jitter_amount(float p_amount);
+	float get_chromatic_aberration_jitter_amount() const;
+	void set_chromatic_aberration_horizontal_smear(float p_amount);
+	float get_chromatic_aberration_horizontal_smear() const;
+	void set_chromatic_aberration_vertical_smear(float p_direction);
+	float get_chromatic_aberration_vertical_smear() const;
+
+	bool chromatic_aberration_refraction_needs_update(RID p_env) const;
 
 	Environment();
 	~Environment();

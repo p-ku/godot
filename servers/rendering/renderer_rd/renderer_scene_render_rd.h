@@ -36,6 +36,7 @@
 #include "servers/rendering/renderer_compositor.h"
 #include "servers/rendering/renderer_rd/cluster_builder_rd.h"
 #include "servers/rendering/renderer_rd/effects/bokeh_dof.h"
+#include "servers/rendering/renderer_rd/effects/chromatic_aberration.h"
 #include "servers/rendering/renderer_rd/effects/copy_effects.h"
 #include "servers/rendering/renderer_rd/effects/debug_effects.h"
 #include "servers/rendering/renderer_rd/effects/fsr.h"
@@ -106,6 +107,7 @@ class RendererSceneRenderRD : public RendererSceneRender {
 protected:
 	RendererRD::ForwardIDStorage *forward_id_storage = nullptr;
 	RendererRD::BokehDOF *bokeh_dof = nullptr;
+	RendererRD::ChromaticAberration *chromatic_aberration = nullptr;
 	RendererRD::CopyEffects *copy_effects = nullptr;
 	RendererRD::DebugEffects *debug_effects = nullptr;
 	RendererRD::Luminance *luminance = nullptr;
