@@ -474,6 +474,13 @@ private:
 		uint64_t last_frame_call_count = 0;
 		uint64_t last_frame_self_time = 0;
 		uint64_t last_frame_total_time = 0;
+		typedef struct NativeProfile {
+			uint64_t call_count;
+			uint64_t total_time;
+			String signature;
+		} NativeProfile;
+		HashMap<String, NativeProfile> native_calls;
+		HashMap<String, NativeProfile> last_native_calls;
 	} profile;
 #endif
 
@@ -504,6 +511,7 @@ public:
 	_FORCE_INLINE_ GDScript *get_script() const { return _script; }
 	_FORCE_INLINE_ bool is_static() const { return _static; }
 	_FORCE_INLINE_ MethodInfo get_method_info() const { return method_info; }
+	_FORCE_INLINE_ int get_argument_count() const { return _argument_count; }
 	_FORCE_INLINE_ Variant get_rpc_config() const { return rpc_config; }
 	_FORCE_INLINE_ int get_max_stack_size() const { return _stack_size; }
 
@@ -514,6 +522,7 @@ public:
 	void debug_get_stack_member_state(int p_line, List<Pair<StringName, int>> *r_stackvars) const;
 
 #ifdef DEBUG_ENABLED
+	void _profile_native_call(uint64_t p_t_taken, const String &p_function_name, const String &p_instance_class_name = String());
 	void disassemble(const Vector<String> &p_code_lines) const;
 #endif
 

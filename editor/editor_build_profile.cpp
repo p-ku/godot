@@ -36,10 +36,10 @@
 #include "editor/editor_node.h"
 #include "editor/editor_paths.h"
 #include "editor/editor_property_name_processor.h"
-#include "editor/editor_scale.h"
 #include "editor/editor_settings.h"
 #include "editor/editor_string_names.h"
 #include "editor/gui/editor_file_dialog.h"
+#include "editor/themes/editor_scale.h"
 
 const char *EditorBuildProfile::build_option_identifiers[BUILD_OPTION_MAX] = {
 	// This maps to SCons build options.
@@ -383,7 +383,7 @@ void EditorBuildProfileManager::_profile_action(int p_action) {
 
 	switch (p_action) {
 		case ACTION_RESET: {
-			confirm_dialog->set_text("Reset the edited profile?");
+			confirm_dialog->set_text(TTR("Reset the edited profile?"));
 			confirm_dialog->popup_centered();
 		} break;
 		case ACTION_LOAD: {
@@ -404,11 +404,11 @@ void EditorBuildProfileManager::_profile_action(int p_action) {
 			export_profile->set_current_file(profile_path->get_text());
 		} break;
 		case ACTION_NEW: {
-			confirm_dialog->set_text("Create a new profile?");
+			confirm_dialog->set_text(TTR("Create a new profile?"));
 			confirm_dialog->popup_centered();
 		} break;
 		case ACTION_DETECT: {
-			confirm_dialog->set_text("This will scan all files in the current project to detect used classes.");
+			confirm_dialog->set_text(TTR("This will scan all files in the current project to detect used classes."));
 			confirm_dialog->popup_centered();
 		} break;
 		case ACTION_MAX: {
@@ -481,7 +481,7 @@ void EditorBuildProfileManager::_detect_classes() {
 			String l = f->get_line();
 			Vector<String> fields = l.split("::");
 			if (fields.size() == 4) {
-				String path = fields[0];
+				const String &path = fields[0];
 				DetectedFile df;
 				df.timestamp = fields[1].to_int();
 				df.md5 = fields[2];
@@ -597,11 +597,11 @@ void EditorBuildProfileManager::_fill_classes_from(TreeItem *p_parent, const Str
 	TreeItem *class_item = class_list->create_item(p_parent);
 	class_item->set_cell_mode(0, TreeItem::CELL_MODE_CHECK);
 	class_item->set_icon(0, EditorNode::get_singleton()->get_class_icon(p_class));
-	String text = p_class;
+	const String &text = p_class;
 
 	bool disabled = edited->is_class_disabled(p_class);
 	if (disabled) {
-		class_item->set_custom_color(0, class_list->get_theme_color(SNAME("disabled_font_color"), EditorStringName(Editor)));
+		class_item->set_custom_color(0, class_list->get_theme_color(SNAME("font_disabled_color"), EditorStringName(Editor)));
 	}
 
 	class_item->set_text(0, text);
@@ -854,6 +854,7 @@ EditorBuildProfileManager::EditorBuildProfileManager() {
 	main_vbc->add_margin_child(TTR("Actions:"), profiles_hbc);
 
 	class_list = memnew(Tree);
+	class_list->set_auto_translate_mode(AUTO_TRANSLATE_MODE_DISABLED);
 	class_list->set_hide_root(true);
 	class_list->set_edit_checkbox_cell_only_when_checkbox_is_pressed(true);
 	class_list->connect("cell_selected", callable_mp(this, &EditorBuildProfileManager::_class_list_item_selected));
@@ -888,7 +889,7 @@ EditorBuildProfileManager::EditorBuildProfileManager() {
 	export_profile->set_access(EditorFileDialog::ACCESS_FILESYSTEM);
 
 	force_detect_classes = memnew(LineEdit);
-	main_vbc->add_margin_child(TTR("Forced classes on detect:"), force_detect_classes);
+	main_vbc->add_margin_child(TTR("Forced Classes on Detect:"), force_detect_classes);
 	force_detect_classes->connect("text_changed", callable_mp(this, &EditorBuildProfileManager::_force_detect_classes_changed));
 
 	set_title(TTR("Edit Build Configuration Profile"));
