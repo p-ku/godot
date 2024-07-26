@@ -13,9 +13,8 @@
 	<tutorials>
 		<link title="Environment and post-processing">$DOCS_URL/tutorials/3d/environment_and_post_processing.html</link>
 		<link title="High dynamic range lighting">$DOCS_URL/tutorials/3d/high_dynamic_range.html</link>
-		<link title="3D Material Testers Demo">https://godotengine.org/asset-library/asset/123</link>
-		<link title="2D HDR Demo">https://godotengine.org/asset-library/asset/110</link>
-		<link title="Third Person Shooter Demo">https://godotengine.org/asset-library/asset/678</link>
+		<link title="3D Material Testers Demo">https://godotengine.org/asset-library/asset/2742</link>
+		<link title="Third Person Shooter (TPS) Demo">https://godotengine.org/asset-library/asset/2710</link>
 	</tutorials>
 	<methods>
 		<method name="get_glow_level" qualifiers="const">
@@ -46,7 +45,6 @@
 		</member>
 		<member name="adjustment_enabled" type="bool" setter="set_adjustment_enabled" getter="is_adjustment_enabled" default="false">
 			If [code]true[/code], enables the [code]adjustment_*[/code] properties provided by this resource. If [code]false[/code], modifications to the [code]adjustment_*[/code] properties will have no effect on the rendered scene.
-			[b]Note:[/b] Adjustments are only supported in the Forward+ and Mobile rendering methods, not Compatibility.
 		</member>
 		<member name="adjustment_saturation" type="float" setter="set_adjustment_saturation" getter="get_adjustment_saturation" default="1.0">
 			The global color saturation value of the rendered scene (default value is 1). Effective only if [member adjustment_enabled] is [code]true[/code].

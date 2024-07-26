@@ -80,7 +80,7 @@ void EditorFileServer::_scan_files_changed(EditorFileSystemDirectory *efd, const
 					_add_file(remapped_path, mt, files_to_send, cached_files);
 				} else if (remap.begins_with("path.")) {
 					String feature = remap.get_slice(".", 1);
-					if (p_tags.find(feature) != -1) {
+					if (p_tags.has(feature)) {
 						String remapped_path = cf->get_value("remap", remap);
 						uint64_t mt = FileAccess::get_modified_time(remapped_path);
 						_add_file(remapped_path, mt, files_to_send, cached_files);
@@ -201,7 +201,7 @@ void EditorFileServer::poll() {
 	// Scan files to send.
 	_scan_files_changed(EditorFileSystem::get_singleton()->get_filesystem(), tags, files_to_send, cached_files);
 	// Add forced export files
-	Vector<String> forced_export = EditorExportPlatform::get_main_pack_forced_export_files();
+	Vector<String> forced_export = EditorExportPlatform::get_forced_export_files();
 	for (int i = 0; i < forced_export.size(); i++) {
 		_add_custom_file(forced_export[i], files_to_send, cached_files);
 	}

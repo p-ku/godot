@@ -1922,7 +1922,7 @@ void RasterizerCanvasGLES3::render_sdf(RID p_render_target, LightOccluderInstanc
 	while (instance) {
 		OccluderPolygon *oc = occluder_polygon_owner.get_or_null(instance->occluder);
 
-		if (!oc || oc->sdf_vertex_array == 0) {
+		if (!oc || oc->sdf_vertex_array == 0 || !instance->sdf_collision) {
 			instance = instance->next;
 			continue;
 		}
@@ -2742,8 +2742,7 @@ RasterizerCanvasGLES3::RasterizerCanvasGLES3() {
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
-	int uniform_max_size = config->max_uniform_buffer_size;
-	if (uniform_max_size < 65536) {
+	if (config->max_uniform_buffer_size < 65536) {
 		data.max_lights_per_render = 64;
 	} else {
 		data.max_lights_per_render = 256;

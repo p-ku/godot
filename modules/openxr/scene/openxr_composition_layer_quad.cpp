@@ -50,6 +50,7 @@ OpenXRCompositionLayerQuad::OpenXRCompositionLayerQuad() {
 		{ (float)quad_size.x, (float)quad_size.y }, // size
 	};
 	openxr_layer_provider = memnew(OpenXRViewportCompositionLayerProvider((XrCompositionLayerBaseHeader *)&composition_layer));
+	XRServer::get_singleton()->connect("reference_frame_changed", callable_mp(this, &OpenXRCompositionLayerQuad::update_transform));
 }
 
 OpenXRCompositionLayerQuad::~OpenXRCompositionLayerQuad() {
@@ -62,13 +63,6 @@ void OpenXRCompositionLayerQuad::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "quad_size", PROPERTY_HINT_NONE, ""), "set_quad_size", "get_quad_size");
 }
 
-void OpenXRCompositionLayerQuad::_on_openxr_session_begun() {
-	OpenXRCompositionLayer::_on_openxr_session_begun();
-	if (openxr_api) {
-		composition_layer.space = openxr_api->get_play_space();
-	}
-}
-
 Ref<Mesh> OpenXRCompositionLayerQuad::_create_fallback_mesh() {
 	Ref<QuadMesh> mesh;
 	mesh.instantiate();
@@ -79,12 +73,13 @@ Ref<Mesh> OpenXRCompositionLayerQuad::_create_fallback_mesh() {
 void OpenXRCompositionLayerQuad::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
-			Transform3D transform = get_transform();
-			Quaternion quat(transform.basis.orthonormalized());
-			composition_layer.pose.orientation = { (float)quat.x, (float)quat.y, (float)quat.z, (float)quat.w };
-			composition_layer.pose.position = { (float)transform.origin.x, (float)transform.origin.y, (float)transform.origin.z };
+			update_transform();
 		} break;
 	}
+}
+
+void OpenXRCompositionLayerQuad::update_transform() {
+	composition_layer.pose = get_openxr_pose();
 }
 
 void OpenXRCompositionLayerQuad::set_quad_size(const Size2 &p_size) {
@@ -95,4 +90,37 @@ void OpenXRCompositionLayerQuad::set_quad_size(const Size2 &p_size) {
 
 Size2 OpenXRCompositionLayerQuad::get_quad_size() const {
 	return quad_size;
+}
+
+Vector2 OpenXRCompositionLayerQuad::intersects_ray(const Vector3 &p_origin, const Vector3 &p_direction) const {
+	Transform3D quad_transform = get_global_transform();
+	Vector3 quad_normal = quad_transform.basis.get_column(2);
+
+	float denom = quad_normal.dot(p_direction);
+	if (Math::abs(denom) > 0.0001) {
+		Vector3 vector = quad_transform.origin - p_origin;
+		float t = vector.dot(quad_normal) / denom;
+		if (t < 0.0) {
+			return Vector2(-1.0, -1.0);
+		}
+		Vector3 intersection = p_origin + p_direction * t;
+
+		Vector3 relative_point = intersection - quad_transform.origin;
+		Vector2 projected_point = Vector2(
+				relative_point.dot(quad_transform.basis.get_column(0)),
+				relative_point.dot(quad_transform.basis.get_column(1)));
+		if (Math::abs(projected_point.x) > quad_size.x / 2.0) {
+			return Vector2(-1.0, -1.0);
+		}
+		if (Math::abs(projected_point.y) > quad_size.y / 2.0) {
+			return Vector2(-1.0, -1.0);
+		}
+
+		float u = 0.5 + (projected_point.x / quad_size.x);
+		float v = 1.0 - (0.5 + (projected_point.y / quad_size.y));
+
+		return Vector2(u, v);
+	}
+
+	return Vector2(-1.0, -1.0);
 }

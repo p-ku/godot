@@ -32,7 +32,6 @@
 
 #include "scene/main/viewport.h"
 #include "scene/resources/theme.h"
-#include "scene/scene_string_names.h"
 #include "scene/theme/theme_db.h"
 
 void Label3D::_bind_methods() {
@@ -636,6 +635,10 @@ void Label3D::_shape() {
 }
 
 void Label3D::set_text(const String &p_string) {
+	if (text == p_string) {
+		return;
+	}
+
 	text = p_string;
 	xl_text = atr(p_string);
 	dirty_text = true;
@@ -793,7 +796,7 @@ Ref<Font> Label3D::_get_font_or_default() const {
 		return font_override;
 	}
 
-	const StringName theme_name = "font";
+	const StringName theme_name = SceneStringName(font);
 	List<StringName> theme_types;
 	ThemeDB::get_singleton()->get_native_type_dependencies(get_class_name(), &theme_types);
 

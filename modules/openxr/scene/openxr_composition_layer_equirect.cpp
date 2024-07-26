@@ -53,6 +53,7 @@ OpenXRCompositionLayerEquirect::OpenXRCompositionLayerEquirect() {
 		-lower_vertical_angle, // lowerVerticalAngle
 	};
 	openxr_layer_provider = memnew(OpenXRViewportCompositionLayerProvider((XrCompositionLayerBaseHeader *)&composition_layer));
+	XRServer::get_singleton()->connect("reference_frame_changed", callable_mp(this, &OpenXRCompositionLayerEquirect::update_transform));
 }
 
 OpenXRCompositionLayerEquirect::~OpenXRCompositionLayerEquirect() {
@@ -79,13 +80,6 @@ void OpenXRCompositionLayerEquirect::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "upper_vertical_angle", PROPERTY_HINT_RANGE, "0,90,0.1,or_less,or_greater,radians_as_degrees"), "set_upper_vertical_angle", "get_upper_vertical_angle");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "lower_vertical_angle", PROPERTY_HINT_RANGE, "0,90,0.1,or_less,or_greater,radians_as_degrees"), "set_lower_vertical_angle", "get_lower_vertical_angle");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "fallback_segments", PROPERTY_HINT_NONE, ""), "set_fallback_segments", "get_fallback_segments");
-}
-
-void OpenXRCompositionLayerEquirect::_on_openxr_session_begun() {
-	OpenXRCompositionLayer::_on_openxr_session_begun();
-	if (openxr_api) {
-		composition_layer.space = openxr_api->get_play_space();
-	}
 }
 
 Ref<Mesh> OpenXRCompositionLayerEquirect::_create_fallback_mesh() {
@@ -146,12 +140,13 @@ Ref<Mesh> OpenXRCompositionLayerEquirect::_create_fallback_mesh() {
 void OpenXRCompositionLayerEquirect::_notification(int p_what) {
 	switch (p_what) {
 		case NOTIFICATION_LOCAL_TRANSFORM_CHANGED: {
-			Transform3D transform = get_transform();
-			Quaternion quat(transform.basis.orthonormalized());
-			composition_layer.pose.orientation = { (float)quat.x, (float)quat.y, (float)quat.z, (float)quat.w };
-			composition_layer.pose.position = { (float)transform.origin.x, (float)transform.origin.y, (float)transform.origin.z };
+			update_transform();
 		} break;
 	}
+}
+
+void OpenXRCompositionLayerEquirect::update_transform() {
+	composition_layer.pose = get_openxr_pose();
 }
 
 void OpenXRCompositionLayerEquirect::set_radius(float p_radius) {
@@ -206,4 +201,55 @@ void OpenXRCompositionLayerEquirect::set_fallback_segments(uint32_t p_fallback_s
 
 uint32_t OpenXRCompositionLayerEquirect::get_fallback_segments() const {
 	return fallback_segments;
+}
+
+Vector2 OpenXRCompositionLayerEquirect::intersects_ray(const Vector3 &p_origin, const Vector3 &p_direction) const {
+	Transform3D equirect_transform = get_global_transform();
+
+	Vector3 offset = p_origin - equirect_transform.origin;
+	float a = p_direction.dot(p_direction);
+	float b = 2.0 * offset.dot(p_direction);
+	float c = offset.dot(offset) - (radius * radius);
+
+	float discriminant = b * b - 4.0 * a * c;
+	if (discriminant < 0.0) {
+		return Vector2(-1.0, -1.0);
+	}
+
+	float t0 = (-b - Math::sqrt(discriminant)) / (2.0 * a);
+	float t1 = (-b + Math::sqrt(discriminant)) / (2.0 * a);
+	float t = MAX(t0, t1);
+
+	if (t < 0.0) {
+		return Vector2(-1.0, -1.0);
+	}
+	Vector3 intersection = p_origin + p_direction * t;
+
+	Basis correction = equirect_transform.basis.inverse();
+	correction.rotate(Vector3(0.0, 1.0, 0.0), -Math_PI / 2.0);
+	Vector3 relative_point = correction.xform(intersection - equirect_transform.origin);
+
+	float horizontal_intersection_angle = Math::atan2(relative_point.z, relative_point.x);
+	if (Math::abs(horizontal_intersection_angle) > central_horizontal_angle / 2.0) {
+		return Vector2(-1.0, -1.0);
+	}
+
+	float vertical_intersection_angle = Math::acos(relative_point.y / radius) - (Math_PI / 2.0);
+	if (vertical_intersection_angle < 0) {
+		if (Math::abs(vertical_intersection_angle) > upper_vertical_angle) {
+			return Vector2(-1.0, -1.0);
+		}
+	} else if (vertical_intersection_angle > lower_vertical_angle) {
+		return Vector2(-1.0, -1.0);
+	}
+
+	// Re-center the intersection angle if the vertical angle is uneven between upper and lower.
+	if (upper_vertical_angle != lower_vertical_angle) {
+		vertical_intersection_angle -= (-upper_vertical_angle + lower_vertical_angle) / 2.0;
+	}
+
+	float u = 0.5 + (horizontal_intersection_angle / central_horizontal_angle);
+	float v = 0.5 + (vertical_intersection_angle / (upper_vertical_angle + lower_vertical_angle));
+
+	return Vector2(u, v);
 }

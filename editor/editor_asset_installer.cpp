@@ -601,7 +601,7 @@ void EditorAssetInstaller::_notification(int p_what) {
 			} else {
 				show_source_files_button->set_icon(get_editor_theme_icon(SNAME("Forward")));
 			}
-			asset_conflicts_link->add_theme_color_override("font_color", get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
+			asset_conflicts_link->add_theme_color_override(SceneStringName(font_color), get_theme_color(SNAME("error_color"), EditorStringName(Editor)));
 
 			generic_extension_icon = get_editor_theme_icon(SNAME("Object"));
 
@@ -632,7 +632,7 @@ void EditorAssetInstaller::_notification(int p_what) {
 				extension_icon_map["gdshader"] = get_editor_theme_icon(SNAME("Shader"));
 				extension_icon_map["gdshaderinc"] = get_editor_theme_icon(SNAME("TextFile"));
 				extension_icon_map["gd"] = get_editor_theme_icon(SNAME("GDScript"));
-				if (Engine::get_singleton()->has_singleton("GodotSharp")) {
+				if (ClassDB::class_exists("CSharpScript")) {
 					extension_icon_map["cs"] = get_editor_theme_icon(SNAME("CSharpScript"));
 				} else {
 					// Mark C# support as unavailable.
@@ -694,7 +694,7 @@ EditorAssetInstaller::EditorAssetInstaller() {
 	target_dir_button->set_text(TTR("Change Install Folder"));
 	target_dir_button->set_tooltip_text(TTR("Change the folder where the contents of the asset are going to be installed."));
 	remapping_tools->add_child(target_dir_button);
-	target_dir_button->connect("pressed", callable_mp(this, &EditorAssetInstaller::_open_target_dir_dialog));
+	target_dir_button->connect(SceneStringName(pressed), callable_mp(this, &EditorAssetInstaller::_open_target_dir_dialog));
 
 	remapping_tools->add_child(memnew(VSeparator));
 
@@ -716,7 +716,7 @@ EditorAssetInstaller::EditorAssetInstaller() {
 	asset_conflicts_link->set_tooltip_text(TTR("Show contents of the asset and conflicting files."));
 	asset_conflicts_link->set_visible(false);
 	remapping_tools->add_child(asset_conflicts_link);
-	asset_conflicts_link->connect("pressed", callable_mp(this, &EditorAssetInstaller::_toggle_source_tree).bind(true, true));
+	asset_conflicts_link->connect(SceneStringName(pressed), callable_mp(this, &EditorAssetInstaller::_toggle_source_tree).bind(true, true));
 
 	// File hierarchy trees.
 

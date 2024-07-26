@@ -35,16 +35,16 @@ void PhysicalBoneSimulator3D::_skeleton_changed(Skeleton3D *p_old, Skeleton3D *p
 		if (p_old->is_connected(SNAME("bone_list_changed"), callable_mp(this, &PhysicalBoneSimulator3D::_bone_list_changed))) {
 			p_old->disconnect(SNAME("bone_list_changed"), callable_mp(this, &PhysicalBoneSimulator3D::_bone_list_changed));
 		}
-		if (p_old->is_connected(SNAME("pose_updated"), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated))) {
-			p_old->disconnect(SNAME("pose_updated"), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated));
+		if (p_old->is_connected(SceneStringName(pose_updated), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated))) {
+			p_old->disconnect(SceneStringName(pose_updated), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated));
 		}
 	}
 	if (p_new) {
 		if (!p_new->is_connected(SNAME("bone_list_changed"), callable_mp(this, &PhysicalBoneSimulator3D::_bone_list_changed))) {
 			p_new->connect(SNAME("bone_list_changed"), callable_mp(this, &PhysicalBoneSimulator3D::_bone_list_changed));
 		}
-		if (!p_new->is_connected(SNAME("pose_updated"), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated))) {
-			p_new->connect(SNAME("pose_updated"), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated));
+		if (!p_new->is_connected(SceneStringName(pose_updated), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated))) {
+			p_new->connect(SceneStringName(pose_updated), callable_mp(this, &PhysicalBoneSimulator3D::_pose_updated));
 		}
 	}
 	_bone_list_changed();
@@ -367,6 +367,20 @@ void PhysicalBoneSimulator3D::_process_modification() {
 		}
 	} else {
 		ERR_FAIL_COND(skeleton->get_bone_count() != bones.size());
+		for (int i = 0; i < skeleton->get_bone_count(); i++) {
+			if (!bones[i].physical_bone) {
+				continue;
+			}
+			skeleton->set_bone_global_pose(i, bones[i].global_pose);
+		}
+
+		// TODO:
+		// The above method is performance heavy and needs to be improved.
+		// Ideally, the processing of set_bone_global_pose within Skeleton3D should be improved,
+		// but the workaround available now is to convert the global pose to a local pose on the SkeletonModifier side.
+		// However, the follow method needs recursive processing for deformations within PhysicalBoneSimulator3D to account for update order.
+		/*
+		ERR_FAIL_COND(skeleton->get_bone_count() != bones.size());
 		LocalVector<Transform3D> local_poses;
 		for (int i = 0; i < skeleton->get_bone_count(); i++) {
 			Transform3D pt;
@@ -376,10 +390,14 @@ void PhysicalBoneSimulator3D::_process_modification() {
 			local_poses.push_back(pt.affine_inverse() * bones[i].global_pose);
 		}
 		for (int i = 0; i < skeleton->get_bone_count(); i++) {
+			if (!bones[i].physical_bone) {
+				continue;
+			}
 			skeleton->set_bone_pose_position(i, local_poses[i].origin);
 			skeleton->set_bone_pose_rotation(i, local_poses[i].basis.get_rotation_quaternion());
 			skeleton->set_bone_pose_scale(i, local_poses[i].basis.get_scale());
 		}
+		*/
 	}
 }
 

@@ -29,10 +29,8 @@
 /**************************************************************************/
 
 #include "node.h"
-#include "node.compat.inc"
 
 #include "core/config/project_settings.h"
-#include "core/core_string_names.h"
 #include "core/io/resource_loader.h"
 #include "core/object/message_queue.h"
 #include "core/object/script_language.h"
@@ -43,7 +41,6 @@
 #include "scene/main/multiplayer_api.h"
 #include "scene/main/window.h"
 #include "scene/resources/packed_scene.h"
-#include "scene/scene_string_names.h"
 #include "viewport.h"
 
 #include <stdint.h>
@@ -180,6 +177,12 @@ void Node::_notification(int p_notification) {
 			}
 		} break;
 
+		case NOTIFICATION_PAUSED: {
+			if (is_physics_interpolated_and_enabled() && is_inside_tree()) {
+				reset_physics_interpolation();
+			}
+		} break;
+
 		case NOTIFICATION_PATH_RENAMED: {
 			if (data.path_cache) {
 				memdelete(data.path_cache);
@@ -267,7 +270,7 @@ void Node::_propagate_ready() {
 	if (data.ready_first) {
 		data.ready_first = false;
 		notification(NOTIFICATION_READY);
-		emit_signal(SceneStringNames::get_singleton()->ready);
+		emit_signal(SceneStringName(ready));
 	}
 }
 
@@ -296,7 +299,7 @@ void Node::_propagate_enter_tree() {
 
 	GDVIRTUAL_CALL(_enter_tree);
 
-	emit_signal(SceneStringNames::get_singleton()->tree_entered);
+	emit_signal(SceneStringName(tree_entered));
 
 	data.tree->node_added(this);
 
@@ -351,7 +354,7 @@ void Node::_propagate_after_exit_tree() {
 
 	data.blocked--;
 
-	emit_signal(SceneStringNames::get_singleton()->tree_exited);
+	emit_signal(SceneStringName(tree_exited));
 }
 
 void Node::_propagate_exit_tree() {
@@ -373,7 +376,7 @@ void Node::_propagate_exit_tree() {
 
 	GDVIRTUAL_CALL(_exit_tree);
 
-	emit_signal(SceneStringNames::get_singleton()->tree_exiting);
+	emit_signal(SceneStringName(tree_exiting));
 
 	notification(NOTIFICATION_EXIT_TREE, true);
 	if (data.tree) {
@@ -1739,12 +1742,10 @@ Node *Node::get_node_or_null(const NodePath &p_path) const {
 		StringName name = p_path.get_name(i);
 		Node *next = nullptr;
 
-		if (name == SceneStringNames::get_singleton()->dot) { // .
-
+		if (name == SNAME(".")) {
 			next = current;
 
-		} else if (name == SceneStringNames::get_singleton()->doubledot) { // ..
-
+		} else if (name == SNAME("..")) {
 			if (current == nullptr || !current->data.parent) {
 				return nullptr;
 			}
@@ -2588,6 +2589,7 @@ void Node::get_storable_properties(HashSet<StringName> &r_storable_properties) c
 }
 
 String Node::to_string() {
+	// Keep this method in sync with `Object::to_string`.
 	ERR_THREAD_GUARD_V(String());
 	if (get_script_instance()) {
 		bool valid;
@@ -2596,7 +2598,12 @@ String Node::to_string() {
 			return ret;
 		}
 	}
-
+	if (_get_extension() && _get_extension()->to_string) {
+		String ret;
+		GDExtensionBool is_valid;
+		_get_extension()->to_string(_get_extension_instance(), &is_valid, &ret);
+		return ret;
+	}
 	return (get_name() ? String(get_name()) + ":" : "") + Object::to_string();
 }
 
@@ -2667,8 +2674,6 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 		node->set_scene_file_path(get_scene_file_path());
 		node->data.editable_instance = data.editable_instance;
 	}
-
-	StringName script_property_name = CoreStringNames::get_singleton()->_script;
 
 	List<const Node *> hidden_roots;
 	List<const Node *> node_tree;
@@ -2771,45 +2776,6 @@ Node *Node::_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap) c
 			parent->move_child(dup, pos);
 		}
 	}
-
-	for (List<const Node *>::Element *N = node_tree.front(); N; N = N->next()) {
-		Node *current_node = node->get_node(get_path_to(N->get()));
-		ERR_CONTINUE(!current_node);
-
-		if (p_flags & DUPLICATE_SCRIPTS) {
-			bool is_valid = false;
-			Variant scr = N->get()->get(script_property_name, &is_valid);
-			if (is_valid) {
-				current_node->set(script_property_name, scr);
-			}
-		}
-
-		List<PropertyInfo> plist;
-		N->get()->get_property_list(&plist);
-
-		for (const PropertyInfo &E : plist) {
-			if (!(E.usage & PROPERTY_USAGE_STORAGE)) {
-				continue;
-			}
-			String name = E.name;
-			if (name == script_property_name) {
-				continue;
-			}
-
-			Variant value = N->get()->get(name).duplicate(true);
-
-			if (E.usage & PROPERTY_USAGE_ALWAYS_DUPLICATE) {
-				Resource *res = Object::cast_to<Resource>(value);
-				if (res) { // Duplicate only if it's a resource
-					current_node->set(name, res->duplicate());
-				}
-
-			} else {
-				current_node->set(name, value);
-			}
-		}
-	}
-
 	return node;
 }
 
@@ -2817,11 +2783,11 @@ Node *Node::duplicate(int p_flags) const {
 	ERR_THREAD_GUARD_V(nullptr);
 	Node *dupe = _duplicate(p_flags);
 
+	_duplicate_properties(this, this, dupe, p_flags);
+
 	if (dupe && (p_flags & DUPLICATE_SIGNALS)) {
 		_duplicate_signals(this, dupe);
 	}
-
-	_duplicate_properties_node(this, this, dupe);
 
 	return dupe;
 }
@@ -2832,7 +2798,10 @@ Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap) con
 }
 
 Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap, const HashMap<Ref<Resource>, Ref<Resource>> &p_resource_remap) const {
-	Node *dupe = _duplicate(DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANTIATION | DUPLICATE_FROM_EDITOR, &r_duplimap);
+	int flags = DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS | DUPLICATE_USE_INSTANTIATION | DUPLICATE_FROM_EDITOR;
+	Node *dupe = _duplicate(flags, &r_duplimap);
+
+	_duplicate_properties(this, this, dupe, flags);
 
 	// This is used by SceneTreeDock's paste functionality. When pasting to foreign scene, resources are duplicated.
 	if (!p_resource_remap.is_empty()) {
@@ -2843,8 +2812,6 @@ Node *Node::duplicate_from_editor(HashMap<const Node *, Node *> &r_duplimap, con
 	// because re-targeting of connections from some descendant to another is not possible
 	// if the emitter node comes later in tree order than the receiver
 	_duplicate_signals(this, dupe);
-
-	_duplicate_properties_node(this, this, dupe);
 
 	return dupe;
 }
@@ -2898,41 +2865,66 @@ void Node::remap_nested_resources(Ref<Resource> p_resource, const HashMap<Ref<Re
 }
 #endif
 
-// Duplicates properties that store a Node.
-// This has to be called after nodes have been duplicated since
-// only then do we get a full picture of how the duplicated node tree looks like.
-void Node::_duplicate_properties_node(const Node *p_root, const Node *p_original, Node *p_copy) const {
+// Duplicate node's properties.
+// This has to be called after nodes have been duplicated since there might be properties
+// of type Node that can be updated properly only if duplicated node tree is complete.
+void Node::_duplicate_properties(const Node *p_root, const Node *p_original, Node *p_copy, int p_flags) const {
 	List<PropertyInfo> props;
-	p_copy->get_property_list(&props);
+	p_original->get_property_list(&props);
+	const StringName &script_property_name = CoreStringName(script);
+	if (p_flags & DUPLICATE_SCRIPTS) {
+		bool is_valid = false;
+		Variant scr = p_original->get(script_property_name, &is_valid);
+		if (is_valid) {
+			p_copy->set(script_property_name, scr);
+		}
+	}
 	for (const PropertyInfo &E : props) {
 		if (!(E.usage & PROPERTY_USAGE_STORAGE)) {
 			continue;
 		}
-		String name = E.name;
+		const StringName name = E.name;
+
+		if (name == script_property_name) {
+			continue;
+		}
+
 		Variant value = p_original->get(name).duplicate(true);
-		if (value.get_type() == Variant::OBJECT) {
-			Node *property_node = Object::cast_to<Node>(value);
-			if (property_node && (p_root == property_node || p_root->is_ancestor_of(property_node))) {
-				value = p_copy->get_node_or_null(p_original->get_path_to(property_node));
-				p_copy->set(name, value);
+
+		if (E.usage & PROPERTY_USAGE_ALWAYS_DUPLICATE) {
+			Resource *res = Object::cast_to<Resource>(value);
+			if (res) { // Duplicate only if it's a resource
+				p_copy->set(name, res->duplicate());
 			}
-		} else if (value.get_type() == Variant::ARRAY) {
-			Array arr = value;
-			if (arr.get_typed_builtin() == Variant::OBJECT) {
-				for (int i = 0; i < arr.size(); i++) {
-					Node *property_node = Object::cast_to<Node>(arr[i]);
-					if (property_node && (p_root == property_node || p_root->is_ancestor_of(property_node))) {
-						arr[i] = p_copy->get_node_or_null(p_original->get_path_to(property_node));
+		} else {
+			if (value.get_type() == Variant::OBJECT) {
+				Node *property_node = Object::cast_to<Node>(value);
+				Variant out_value = value;
+				if (property_node && (p_root == property_node || p_root->is_ancestor_of(property_node))) {
+					out_value = p_copy->get_node_or_null(p_original->get_path_to(property_node));
+				}
+				p_copy->set(name, out_value);
+			} else if (value.get_type() == Variant::ARRAY) {
+				Array arr = value;
+				if (arr.get_typed_builtin() == Variant::OBJECT) {
+					for (int i = 0; i < arr.size(); i++) {
+						Node *property_node = Object::cast_to<Node>(arr[i]);
+						if (property_node && (p_root == property_node || p_root->is_ancestor_of(property_node))) {
+							arr[i] = p_copy->get_node_or_null(p_original->get_path_to(property_node));
+						}
 					}
 				}
-				value = arr;
+				p_copy->set(name, arr);
+			} else {
 				p_copy->set(name, value);
 			}
 		}
 	}
 
-	for (int i = 0; i < p_copy->get_child_count(); i++) {
-		_duplicate_properties_node(p_root, p_original->get_child(i), p_copy->get_child(i));
+	for (int i = 0; i < p_original->get_child_count(); i++) {
+		Node *copy_child = p_copy->get_child(i);
+		ERR_FAIL_NULL_MSG(copy_child, "Child node disappeared while duplicating.");
+		_duplicate_properties(p_root, p_original->get_child(i), copy_child, p_flags);
 	}
 }
 
@@ -3006,7 +2998,7 @@ static void find_owned_by(Node *p_by, Node *p_node, List<Node *> *p_owned) {
 	}
 }
 
-void Node::replace_by(Node *p_node, bool p_keep_groups, bool p_keep_children) {
+void Node::replace_by(Node *p_node, bool p_keep_groups) {
 	ERR_THREAD_GUARD
 	ERR_FAIL_NULL(p_node);
 	ERR_FAIL_COND(p_node->data.parent);
@@ -3027,13 +3019,13 @@ void Node::replace_by(Node *p_node, bool p_keep_groups, bool p_keep_children) {
 	_replace_connections_target(p_node);
 
 	if (data.owner) {
-		if (p_keep_children) {
-			for (int i = 0; i < get_child_count(); i++) {
-				find_owned_by(data.owner, get_child(i), &owned_by_owner);
-			}
+		for (int i = 0; i < get_child_count(); i++) {
+			find_owned_by(data.owner, get_child(i), &owned_by_owner);
 		}
+
 		_clean_up_owner();
 	}
+
 	Node *parent = data.parent;
 	int index_in_parent = get_index(false);
 
@@ -3045,33 +3037,31 @@ void Node::replace_by(Node *p_node, bool p_keep_groups, bool p_keep_children) {
 
 	emit_signal(SNAME("replacing_by"), p_node);
 
-	if (p_keep_children) {
-		while (get_child_count()) {
-			Node *child = get_child(0);
-			remove_child(child);
-			if (!child->is_owned_by_parent()) {
-				// add the custom children to the p_node
-				Node *child_owner = child->get_owner() == this ? p_node : child->get_owner();
-				child->set_owner(nullptr);
-				p_node->add_child(child);
-				child->set_owner(child_owner);
-			}
-		}
-
-		for (Node *E : owned) {
-			if (E->data.owner != p_node) {
-				E->set_owner(p_node);
-			}
-		}
-
-		for (Node *E : owned_by_owner) {
-			if (E->data.owner != owner) {
-				E->set_owner(owner);
-			}
+	while (get_child_count()) {
+		Node *child = get_child(0);
+		remove_child(child);
+		if (!child->is_owned_by_parent()) {
+			// add the custom children to the p_node
+			Node *child_owner = child->get_owner() == this ? p_node : child->get_owner();
+			child->set_owner(nullptr);
+			p_node->add_child(child);
+			child->set_owner(child_owner);
 		}
 	}
 
 	p_node->set_owner(owner);
+	for (Node *E : owned) {
+		if (E->data.owner != p_node) {
+			E->set_owner(p_node);
+		}
+	}
+
+	for (Node *E : owned_by_owner) {
+		if (E->data.owner != owner) {
+			E->set_owner(owner);
+		}
+	}
+
 	p_node->set_scene_file_path(get_scene_file_path());
 }
 
@@ -3234,7 +3224,7 @@ void Node::print_orphan_nodes() {
 	ObjectDB::debug_objects(_print_orphan_nodes_routine);
 
 	for (const KeyValue<ObjectID, List<String>> &E : _print_orphan_nodes_map) {
-		print_line(itos(E.key) + " - Stray Node: " + E.value[0] + " (Type: " + E.value[1] + ")");
+		print_line(itos(E.key) + " - Stray Node: " + E.value.get(0) + " (Type: " + E.value.get(1) + ")");
 	}
 
 	// Flush it after use.
@@ -3324,7 +3314,7 @@ void Node::update_configuration_warnings() {
 		return;
 	}
 	if (get_tree()->get_edited_scene_root() && (get_tree()->get_edited_scene_root() == this || get_tree()->get_edited_scene_root()->is_ancestor_of(this))) {
-		get_tree()->emit_signal(SceneStringNames::get_singleton()->node_configuration_warning_changed, this);
+		get_tree()->emit_signal(SceneStringName(node_configuration_warning_changed), this);
 	}
 #endif
 }
@@ -3523,6 +3513,7 @@ void Node::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_node_and_resource", "path"), &Node::_get_node_and_resource);
 
 	ClassDB::bind_method(D_METHOD("is_inside_tree"), &Node::is_inside_tree);
+	ClassDB::bind_method(D_METHOD("is_part_of_edited_scene"), &Node::is_part_of_edited_scene);
 	ClassDB::bind_method(D_METHOD("is_ancestor_of", "node"), &Node::is_ancestor_of);
 	ClassDB::bind_method(D_METHOD("is_greater_than", "node"), &Node::is_greater_than);
 	ClassDB::bind_method(D_METHOD("get_path"), &Node::get_path);
@@ -3598,7 +3589,7 @@ void Node::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("create_tween"), &Node::create_tween);
 
 	ClassDB::bind_method(D_METHOD("duplicate", "flags"), &Node::duplicate, DEFVAL(DUPLICATE_USE_INSTANTIATION | DUPLICATE_SIGNALS | DUPLICATE_GROUPS | DUPLICATE_SCRIPTS));
-	ClassDB::bind_method(D_METHOD("replace_by", "node", "keep_groups", "keep_children"), &Node::replace_by, DEFVAL(false), DEFVAL(true));
+	ClassDB::bind_method(D_METHOD("replace_by", "node", "keep_groups"), &Node::replace_by, DEFVAL(false));
 
 	ClassDB::bind_method(D_METHOD("set_scene_instance_load_placeholder", "load_placeholder"), &Node::set_scene_instance_load_placeholder);
 	ClassDB::bind_method(D_METHOD("get_scene_instance_load_placeholder"), &Node::get_scene_instance_load_placeholder);

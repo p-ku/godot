@@ -46,11 +46,17 @@ class OpenXRCompositionLayer : public Node3D {
 	GDCLASS(OpenXRCompositionLayer, Node3D);
 
 	SubViewport *layer_viewport = nullptr;
+	bool enable_hole_punch = false;
 	MeshInstance3D *fallback = nullptr;
 	bool should_update_fallback_mesh = false;
+	bool openxr_session_running = false;
 
+	Dictionary extension_property_values;
+
+	bool _should_use_fallback_node();
 	void _create_fallback_node();
 	void _reset_fallback_material();
+	void _remove_fallback_node();
 
 protected:
 	OpenXRAPI *openxr_api = nullptr;
@@ -60,6 +66,9 @@ protected:
 	static void _bind_methods();
 
 	void _notification(int p_what);
+	void _get_property_list(List<PropertyInfo> *p_property_list) const;
+	bool _get(const StringName &p_property, Variant &r_value) const;
+	bool _set(const StringName &p_property, const Variant &p_value);
 
 	virtual void _on_openxr_session_begun();
 	virtual void _on_openxr_session_stopping();
@@ -68,11 +77,17 @@ protected:
 
 	void update_fallback_mesh();
 
-	static HashSet<SubViewport *> viewports_in_use;
+	XrPosef get_openxr_pose();
+
+	static Vector<OpenXRCompositionLayer *> composition_layer_nodes;
+	bool is_viewport_in_use(SubViewport *p_viewport);
 
 public:
 	void set_layer_viewport(SubViewport *p_viewport);
 	SubViewport *get_layer_viewport() const;
+
+	void set_enable_hole_punch(bool p_enable);
+	bool get_enable_hole_punch() const;
 
 	void set_sort_order(int p_order);
 	int get_sort_order() const;
@@ -83,6 +98,8 @@ public:
 	bool is_natively_supported() const;
 
 	virtual PackedStringArray get_configuration_warnings() const override;
+
+	virtual Vector2 intersects_ray(const Vector3 &p_origin, const Vector3 &p_direction) const;
 
 	OpenXRCompositionLayer();
 	~OpenXRCompositionLayer();

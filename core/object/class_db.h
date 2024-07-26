@@ -195,7 +195,7 @@ public:
 	template <typename T>
 	static void register_class(bool p_virtual = false) {
 		GLOBAL_LOCK_FUNCTION;
-		static_assert(types_are_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
+		static_assert(std::is_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
 		T::initialize_class();
 		ClassInfo *t = classes.getptr(T::get_class_static());
 		ERR_FAIL_NULL(t);
@@ -210,7 +210,7 @@ public:
 	template <typename T>
 	static void register_abstract_class() {
 		GLOBAL_LOCK_FUNCTION;
-		static_assert(types_are_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
+		static_assert(std::is_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
 		T::initialize_class();
 		ClassInfo *t = classes.getptr(T::get_class_static());
 		ERR_FAIL_NULL(t);
@@ -223,7 +223,7 @@ public:
 	template <typename T>
 	static void register_internal_class() {
 		GLOBAL_LOCK_FUNCTION;
-		static_assert(types_are_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
+		static_assert(std::is_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
 		T::initialize_class();
 		ClassInfo *t = classes.getptr(T::get_class_static());
 		ERR_FAIL_NULL(t);
@@ -238,7 +238,7 @@ public:
 	template <typename T>
 	static void register_runtime_class() {
 		GLOBAL_LOCK_FUNCTION;
-		static_assert(types_are_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
+		static_assert(std::is_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
 		T::initialize_class();
 		ClassInfo *t = classes.getptr(T::get_class_static());
 		ERR_FAIL_NULL(t);
@@ -263,7 +263,7 @@ public:
 	template <typename T>
 	static void register_custom_instance_class() {
 		GLOBAL_LOCK_FUNCTION;
-		static_assert(types_are_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
+		static_assert(std::is_same_v<typename T::self_type, T>, "Class not declared properly, please use GDCLASS.");
 		T::initialize_class();
 		ClassInfo *t = classes.getptr(T::get_class_static());
 		ERR_FAIL_NULL(t);
@@ -287,6 +287,7 @@ public:
 	static bool class_exists(const StringName &p_class);
 	static bool is_parent_class(const StringName &p_class, const StringName &p_inherits);
 	static bool can_instantiate(const StringName &p_class);
+	static bool is_abstract(const StringName &p_class);
 	static bool is_virtual(const StringName &p_class);
 	static Object *instantiate(const StringName &p_class);
 	static Object *instantiate_no_placeholders(const StringName &p_class);
@@ -460,6 +461,7 @@ public:
 
 	static bool is_class_exposed(const StringName &p_class);
 	static bool is_class_reloadable(const StringName &p_class);
+	static bool is_class_runtime(const StringName &p_class);
 
 	static void add_resource_base_extension(const StringName &p_extension, const StringName &p_class);
 	static void get_resource_base_extensions(List<String> *p_extensions);

@@ -35,6 +35,7 @@
 #include "core/templates/rb_map.h"
 #include "core/variant/typed_array.h"
 #include "scene/main/scene_tree.h"
+#include "scene/scene_string_names.h"
 
 class Viewport;
 class Window;
@@ -266,7 +267,7 @@ private:
 	void _propagate_groups_dirty();
 	Array _get_node_and_resource(const NodePath &p_path);
 
-	void _duplicate_properties_node(const Node *p_root, const Node *p_original, Node *p_copy) const;
+	void _duplicate_properties(const Node *p_root, const Node *p_original, Node *p_copy, int p_flags) const;
 	void _duplicate_signals(const Node *p_original, Node *p_copy) const;
 	Node *_duplicate(int p_flags, HashMap<const Node *, Node *> *r_duplimap = nullptr) const;
 
@@ -310,11 +311,6 @@ private:
 	Variant _call_thread_safe_bind(const Variant **p_args, int p_argcount, Callable::CallError &r_error);
 
 protected:
-#ifndef DISABLE_DEPRECATED
-	void _replace_by_bind_compat_89992(Node *p_node, bool p_keep_data = false);
-	static void _bind_compatibility_methods();
-#endif // DISABLE_DEPRECATED
-
 	void _block() { data.blocked++; }
 	void _unblock() { data.blocked--; }
 
@@ -530,6 +526,8 @@ public:
 	bool is_property_pinned(const StringName &p_property) const;
 	virtual StringName get_property_store_alias(const StringName &p_property) const;
 	bool is_part_of_edited_scene() const;
+#else
+	bool is_part_of_edited_scene() const { return false; }
 #endif
 	void get_storable_properties(HashSet<StringName> &r_storable_properties) const;
 
@@ -598,7 +596,7 @@ public:
 			// No thread processing.
 			// Only accessible if node is outside the scene tree
 			// or access will happen from a node-safe thread.
-			return !data.inside_tree || is_current_thread_safe_for_nodes();
+			return is_current_thread_safe_for_nodes() || unlikely(!data.inside_tree);
 		} else {
 			// Thread processing.
 			return true;
@@ -634,7 +632,7 @@ public:
 		return binds;
 	}
 
-	void replace_by(Node *p_node, bool p_keep_groups = false, bool p_keep_children = true);
+	void replace_by(Node *p_node, bool p_keep_data = false);
 
 	void set_process_mode(ProcessMode p_mode);
 	ProcessMode get_process_mode() const;
