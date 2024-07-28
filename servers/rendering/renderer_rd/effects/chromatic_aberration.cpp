@@ -319,7 +319,10 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	// setup our uniforms
 	//	push_constant.samples = samples; // samples per pixel
 	//	process_push_constant.pixel_count = p_half_size.x * p_half_size.y;
-
+	std::cout << p_half_size.x
+			  << "\n";
+	std::cout << p_half_size.y
+			  << "\n";
 	process_push_constant.half_size[0] = p_half_size.x;
 	process_push_constant.half_size[1] = p_half_size.y;
 	process_push_constant.full_size[0] = p_full_size.x;
@@ -339,6 +342,9 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	process_push_constant.min_uv_delta = pixel_size.length() / 3;
 
 	process_push_constant.max_samples = MAX(3, MIN(p_diagonal, 1023) * quality);
+	if (process_push_constant.max_samples == 3) {
+		return;
+	}
 	// Size2 base_uv_delta = pixel_size / 3.0;
 	//	process_push_constant.center[0] = p_center.x;
 	//	process_push_constant.center[1] = p_center.y;
@@ -362,8 +368,8 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 
 	RID default_sampler = material_storage->sampler_rd_get_default(RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR, RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED);
 
-	RD::Uniform u_base_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_source_texture }));
-	RD::Uniform u_secondary_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_second_texture }));
+	// RD::Uniform u_base_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_source_texture }));
+	// RD::Uniform u_secondary_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_second_texture }));
 	// RD::Uniform u_half_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers.half_texture }));
 	RD::Uniform u_refraction_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers->refraction }));
 	RD::Uniform u_spectrum_texture(RD::UNIFORM_TYPE_SAMPLER_WITH_TEXTURE, 0, Vector<RID>({ default_sampler, p_buffers->spectrum }));
@@ -371,7 +377,7 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	RD::Uniform u_base_image(RD::UNIFORM_TYPE_IMAGE, 0, p_source_texture);
 	//	RD::Uniform u_refraction_image(RD::UNIFORM_TYPE_IMAGE, 0, p_buffers->refraction);
 
-	RD::Uniform u_secondary_image(RD::UNIFORM_TYPE_IMAGE, 0, p_render_buffers->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0));
+	// RD::Uniform u_secondary_image(RD::UNIFORM_TYPE_IMAGE, 0, p_render_buffers->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0));
 
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 	//
@@ -386,11 +392,11 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	RID shader = ca_shader.version_get_shader(shader_version, PROCESS);
 	ERR_FAIL_COND(shader.is_null());
 	RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS]);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_base_texture), 0);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_refraction_texture), 1);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 2, u_spectrum_texture), 2);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 3, u_secondary_image), 3);
-	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 4, u_base_image), 4);
+	// RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_base_texture), 0);
+	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_refraction_texture), 0);
+	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_spectrum_texture), 1);
+	// RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 3, u_secondary_image), 3);
+	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 2, u_base_image), 2);
 	//	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 5, u_refraction_image), 5);
 
 	RD::get_singleton()->compute_list_set_push_constant(compute_list, &process_push_constant, push_constant_size);

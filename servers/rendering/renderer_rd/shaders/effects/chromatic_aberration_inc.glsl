@@ -96,6 +96,7 @@ params;
 //#define EPSILON 0.0078125 // based on 8-bit color (2 / 256), anything smaller is imperceptible
 #define EPSILON 1.017812 // based on ?
 #define EPSILON3 0.339270666666667
+#define NEWEPSILON 2.0 // based on ?
 
 // #define EPSILON 2.0
 

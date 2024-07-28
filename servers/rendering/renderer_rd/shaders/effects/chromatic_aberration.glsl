@@ -7,7 +7,7 @@
 #define BLOCK_SIZE 8
 
 //layout(local_size_x = BLOCK_SIZE, local_size_y = BLOCK_SIZE, local_size_z = 1) in;
-layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 #ifdef MODE_CA_SPECTRUM
 layout(rgba16f, set = 0, binding = 0) uniform restrict writeonly image2D spectrum_image;
@@ -19,19 +19,19 @@ layout(rgba32f, set = 0, binding = 0) uniform restrict writeonly image2D refract
 
 #ifdef MODE_CA_PROCESS
 // layout(rgba16f, set = 0, binding = 0) uniform restrict writeonly image2D ca_image;
-layout(set = 0, binding = 0) uniform sampler2D copy_texture;
-layout(set = 1, binding = 0) uniform sampler2D refraction_texture;
+// layout(set = 0, binding = 0) uniform sampler2D copy_texture;
+layout(set = 0, binding = 0) uniform sampler2D refraction_texture;
 // layout(set = 2, binding = 0) uniform sampler2D color_texture;
-layout(set = 2, binding = 0) uniform sampler2D spectrum_texture;
-layout(rgba16f, set = 3, binding = 0) uniform restrict image2D ca_image;
-layout(rgba16f, set = 4, binding = 0) uniform restrict writeonly image2D final_image;
+layout(set = 1, binding = 0) uniform sampler2D spectrum_texture;
+// layout(rgba16f, set = 3, binding = 0) uniform restrict image2D ca_image;
+layout(rgba16f, set = 2, binding = 0) uniform restrict image2D final_image;
 
 #endif
 
-#ifdef MODE_CA_COMPOSITE
-layout(rgba16f, set = 0, binding = 0) uniform restrict image2D final_image;
-layout(set = 1, binding = 0) uniform sampler2D ca_texture;
-#endif
+// #ifdef MODE_CA_COMPOSITE
+// layout(rgba16f, set = 0, binding = 0) uniform restrict image2D final_image;
+// layout(set = 1, binding = 0) uniform sampler2D ca_texture;
+// #endif
 
 #include "chromatic_aberration_inc.glsl"
 
@@ -140,10 +140,7 @@ void main() {
 	const vec2 blue_pos = blue_center_pos + params.center;
 
 	const float sample_pixel_range = pixel_center_distance - blue_center_distance;
-	if (sample_pixel_range <= EPSILON) {
-		imageStore(refraction_image, pos, vec4(spiral_pos, vec2(0.0)));
-		return;
-	}
+
 	// if (sample_pixel_range <= EPSILON && pixel_center_distance <= params.minimum_distance) {
 	// 	imageStore(refraction_image, pos, vec4(spiral_pos, vec2(4.5)));
 	// 	return;
@@ -167,7 +164,11 @@ void main() {
 	const vec2 sample_uv_range = blue_uv - spiral_uv;
 	//const uint samples = clamp(sample_pixel_range, 3, );
 	//	const vec2 base_uv_delta = EPSILON3;
-	imageStore(refraction_image, pos, vec4(spiral_pos, sample_uv_range));
+	if (all(lessThan(sample_uv_range * params.half_size, vec2(EPSILON)))) {
+		imageStore(refraction_image, pos, vec4(spiral_pos, vec2(0.0)));
+		return;
+	}
+	imageStore(refraction_image, pos, vec4(spiral_pos, sample_uv_range * params.half_size));
 #endif
 
 #ifdef MODE_CA_PROCESS
@@ -180,11 +181,13 @@ void main() {
 
 	// const ivec2 spiral_pos1 = ivec2(refraction_data.xy);
 	const ivec2 spiral_pos1 = ivec2(refraction_data.xy);
-
-	const vec2 sample_uv_range = refraction_data.zw;
-	// if (all(lessThanEqual(sample_uv_range, vec2(0.0)))) {
-	// 	return;
-	// }
+	if (all(greaterThanEqual(spiral_pos1, params.half_size - 65))) { //too large, do nothing
+		return;
+	}
+	const vec2 sample_pixel_range = refraction_data.zw;
+	if (all(lessThan(sample_pixel_range, vec2(EPSILON)))) {
+		return;
+	}
 	// if (int(sample_uv_range.x) == 5) {
 	// 	imageStore(final_image, spiral_pos1, vec4(0.0, 0.0, 1.0, 1.0));
 	// 	return;
@@ -228,7 +231,17 @@ void main() {
 	// const uint samples = 100;
 
 	//	uint samples_init = params.max_samples;
-	vec2 base_uv_delta = sample_uv_range / samples;
+	vec2 base_pixel_delta = max(sample_pixel_range / samples, vec2(0.0));
+	if (all(lessThan(base_pixel_delta, vec2(EPSILON)))) {
+		return;
+	}
+	// if (all(lessThanEqual(base_uv_delta, vec2(0.0)))) {
+	// 	imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	return;
+	// }
+	// if (length(base_pixel_delta) < 1) {
+	// 	return;
+	// }
 	//	float uv_delta_length = length(base_uv_delta);
 	// if (length(base_uv_delta) < params.min_uv_delta) {
 	// 	samples_init = max(3, floor(length(sample_uv_range) / params.min_uv_delta));
@@ -236,21 +249,27 @@ void main() {
 	// }
 	// const float samples = samples_init;
 	//	const uint samples = clamp(samples_init, 3, uint(length(sample_uv_range) * params.pixel_third * 3));
-	const vec2 uv_delta1 = base_uv_delta;
-	const vec2 uv_delta2 = -base_uv_delta;
-	const vec2 uv_delta3 = vec2(uv_delta2.x, uv_delta1.y);
-	const vec2 uv_delta4 = vec2(uv_delta1.x, uv_delta2.y);
-
+	// const vec2 uv_delta1 = base_uv_delta;
+	// const vec2 uv_delta2 = -base_uv_delta;
+	// const vec2 uv_delta3 = vec2(uv_delta2.x, uv_delta1.y);
+	// const vec2 uv_delta4 = vec2(uv_delta1.x, uv_delta2.y);
+	const vec2 pixel_delta1 = base_pixel_delta;
+	const vec2 pixel_delta2 = -base_pixel_delta;
+	const vec2 pixel_delta3 = vec2(pixel_delta2.x, pixel_delta1.y);
+	const vec2 pixel_delta4 = vec2(pixel_delta1.x, pixel_delta2.y);
 	const float spectrum_delta = 0.8 / samples;
 
 	// const float rando = 0.5 + (nrand(vec2(pos)) - 0.5) * params.jitter_amount;
 	const float rando = 0.5 + (hash12n(vec2(pos) + params.jitter_seed) - 0.5) * params.jitter_amount;
 
-	vec2 base_sample_uv1 = spiral_uv1 + uv_delta1 * rando;
-	vec2 base_sample_uv2 = spiral_uv2 + uv_delta2 * rando;
-	vec2 base_sample_uv3 = spiral_uv3 + uv_delta3 * rando;
-	vec2 base_sample_uv4 = spiral_uv4 + uv_delta4 * rando;
-
+	// vec2 base_sample_uv1 = spiral_uv1 + uv_delta1 * rando;
+	// vec2 base_sample_uv2 = spiral_uv2 + uv_delta2 * rando;
+	// vec2 base_sample_uv3 = spiral_uv3 + uv_delta3 * rando;
+	// vec2 base_sample_uv4 = spiral_uv4 + uv_delta4 * rando;
+	vec2 base_sample_pix1 = spiral_pixel_pos1 + pixel_delta1 * rando;
+	vec2 base_sample_pix2 = spiral_pixel_pos2 + pixel_delta2 * rando;
+	vec2 base_sample_pix3 = spiral_pixel_pos3 + pixel_delta3 * rando;
+	vec2 base_sample_pix4 = spiral_pixel_pos4 + pixel_delta4 * rando;
 	float base_spectrum_uv_x = 0.1 + spectrum_delta * rando;
 	const float base_spectrum_uv_y = 0.5;
 	vec3 filter_sum = vec3(0.0);
@@ -262,20 +281,75 @@ void main() {
 	for (uint i = 0; i < samples; ++i) {
 		const vec3 spectrum_filter = texture(spectrum_texture, vec2(base_spectrum_uv_x, base_spectrum_uv_y)).rgb;
 
-		sum1 += texture(copy_texture, base_sample_uv1).rgb * spectrum_filter;
-		sum2 += texture(copy_texture, base_sample_uv2).rgb * spectrum_filter;
-		sum3 += texture(copy_texture, base_sample_uv3).rgb * spectrum_filter;
-		sum4 += texture(copy_texture, base_sample_uv4).rgb * spectrum_filter;
+		// sum1 += texture(copy_texture, base_sample_uv1).rgb * spectrum_filter;
+		// sum2 += texture(copy_texture, base_sample_uv2).rgb * spectrum_filter;
+		// sum3 += texture(copy_texture, base_sample_uv3).rgb * spectrum_filter;
+		// sum4 += texture(copy_texture, base_sample_uv4).rgb * spectrum_filter;
+		sum1 += imageLoad(final_image, ivec2(base_sample_pix1)).rgb * spectrum_filter;
+		sum2 += imageLoad(final_image, ivec2(base_sample_pix2)).rgb * spectrum_filter;
+		sum3 += imageLoad(final_image, ivec2(base_sample_pix3)).rgb * spectrum_filter;
+		sum4 += imageLoad(final_image, ivec2(base_sample_pix4)).rgb * spectrum_filter;
 
 		filter_sum += spectrum_filter;
 
 		base_spectrum_uv_x += spectrum_delta;
-		base_sample_uv1 += uv_delta1;
-		base_sample_uv2 += uv_delta2;
-		base_sample_uv3 += uv_delta3;
-		base_sample_uv4 += uv_delta4;
+		base_sample_pix1 += pixel_delta1;
+		base_sample_pix2 += pixel_delta2;
+		base_sample_pix3 += pixel_delta3;
+		base_sample_pix4 += pixel_delta4;
 	}
 
+	// if (samples == 3) {
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos1, spiral_pos2))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	//		imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos1, spiral_pos3))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	//imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos1, spiral_pos4))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	//imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos2, spiral_pos3))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	//imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos2, spiral_pos4))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	//imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
+	// if (all(equal(spiral_pos3, spiral_pos4))) {
+	// 	// imageStore(final_image, spiral_pos1, vec4(1.0));
+	// 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
+	// 	imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));
+	// 	//imageStore(final_image, spiral_pos4, vec4(sum4 / filter_sum, 1.0));
+	// 	return;
+	// }
 	imageStore(final_image, spiral_pos1, vec4(sum1 / filter_sum, 1.0));
 	imageStore(final_image, spiral_pos2, vec4(sum2 / filter_sum, 1.0));
 	imageStore(final_image, spiral_pos3, vec4(sum3 / filter_sum, 1.0));

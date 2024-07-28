@@ -603,6 +603,7 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		//	rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
 		chromatic_aberration->refraction_size = full_size;
 		//	}
+
 		//	if (stored_refraction_version != rb->get_chromatic_aberration_refraction_version()) {
 		//		rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
 		//	}
