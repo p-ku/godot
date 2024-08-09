@@ -43,22 +43,30 @@ layout(push_constant, std430) uniform Params {
 	int pixel_count;
 	int spiral_pixel_count;
 	uint max_samples;
-	uint pad;
+	uint sample_mode;
+	//uint pad;
 }
 params;
+
 #endif
-#ifdef MODE_CA_PROCESS
+#if defined(MODE_CA_PROCESS_TWO_TONE) || defined(MODE_CA_PROCESS_THREE_TONE) || defined(MODE_CA_PROCESS_SPECTRUM_DEFAULT) || defined(MODE_CA_PROCESS_SPECTRUM_CUSTOM) || defined(MODE_CA_COMPOSITE)
 layout(push_constant, std430) uniform Params {
 	ivec2 half_size;
 	ivec2 full_size;
 
 	vec2 pixel_size;
-	float min_uv_delta;
-	float jitter_amount;
+	uint sample_mode;
+	bool jitter;
 
 	vec2 jitter_seed;
 	float max_samples;
-	uint pad;
+	float edge_factor;
+
+	float linear_factor;
+	float minimum_distance;
+	vec2 center;
+
+	// uint pad;
 }
 params;
 #endif
@@ -91,10 +99,20 @@ params;
 //test
 //used to work around downsampling filter
 //#define DEPTH_GAP 0.0
+#ifdef MODE_CA_PROCESS_TWO_TONE
+const vec3 filter1 = vec3(1.0, 0.5, 0.0);
+const vec3 filter2 = vec3(0.0, 0.5, 1.0);
+#endif
+
+#define SAMPLE_MODE_TWO_TONE 0
+#define SAMPLE_MODE_THREE_TONE 1
+#define SAMPLE_MODE_SPECTRUM 2
 #define M_PI 3.1415926535897932384626433832795
 #define M_HALF_PI 1.5707963267948966192313216916397
 //#define EPSILON 0.0078125 // based on 8-bit color (2 / 256), anything smaller is imperceptible
-#define EPSILON 1.017812 // based on ?
+#define EPSILON 0.00390625 // based on 8-bit color (2 / 256), anything smaller is imperceptible
+
+//#define EPSILON 1.017812 // based on ?
 #define EPSILON3 0.339270666666667
 
 // #define EPSILON 2.0

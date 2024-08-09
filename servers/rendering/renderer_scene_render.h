@@ -245,20 +245,17 @@ public:
 	virtual void environment_set_sdfgi_frames_to_update_light(RS::EnvironmentSDFGIFramesToUpdateLight p_update) = 0;
 
 	// Chromatic Aberration
-	void environment_set_chromatic_aberration(RID p_env, bool p_enable, float p_quality, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, bool p_circular, float p_minimum_distance, float p_desaturation, float p_jitter_amount, float p_horizontal_smear, float p_vertical_smear, bool p_spectrum_changed, bool p_refraction_changed);
+	void environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance);
 	bool environment_get_chromatic_aberration_enabled(RID p_env) const;
-	float environment_get_chromatic_aberration_quality(RID p_env) const;
+	RS::EnvironmentChromaticAberrationSampleMode environment_get_chromatic_aberration_sample_mode(RID p_env) const;
+	// RS::EnvironmentCAQuality environment_get_chromatic_aberration_quality(RID p_env) const;
+	bool environment_get_chromatic_aberration_jitter(RID p_env) const;
+	int environment_get_chromatic_aberration_samples(RID p_env) const;
+	RID environment_get_chromatic_aberration_custom_texture(RID p_env) const;
 	float environment_get_chromatic_aberration_edge_amount(RID p_env) const;
 	float environment_get_chromatic_aberration_linear_amount(RID p_env) const;
 	Vector2 environment_get_chromatic_aberration_center(RID p_env) const;
-	bool environment_get_chromatic_aberration_circular(RID p_env) const;
 	float environment_get_chromatic_aberration_minimum_distance(RID p_env) const;
-	float environment_get_chromatic_aberration_desaturation(RID p_env) const;
-	float environment_get_chromatic_aberration_jitter_amount(RID p_env) const;
-	float environment_get_chromatic_aberration_horizontal_smear(RID p_env) const;
-	float environment_get_chromatic_aberration_vertical_smear(RID p_env) const;
-	uint64_t environment_get_chromatic_aberration_spectrum_version(RID p_env) const;
-	uint64_t environment_get_chromatic_aberration_refraction_version(RID p_env) const;
 
 	// Adjustment
 	void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction);

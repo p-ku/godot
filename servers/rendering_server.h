@@ -1162,7 +1162,23 @@ public:
 		ENV_TONE_MAPPER_ACES
 	};
 
-	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, float p_quality, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, bool p_circular, float p_minimum_distance, float desaturation, float p_jitter_amount, float p_horizontal_smear, float p_vertical_smear, bool p_spectrum_changed, bool p_refraction_changed) = 0;
+	enum EnvironmentChromaticAberrationSampleMode {
+		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE,
+		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE,
+		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM
+	};
+	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance) = 0;
+	// enum EnvironmentCAQuality {
+	// 	ENV_CA_QUALITY_4,
+	// 	ENV_CA_QUALITY_8,
+	// 	ENV_CA_QUALITY_12,
+	// 	ENV_CA_QUALITY_16,
+	// 	ENV_CA_QUALITY_20,
+	// 	ENV_CA_QUALITY_24,
+	// 	ENV_CA_QUALITY_28,
+	// 	ENV_CA_QUALITY_32,
+	// };
+
 	virtual void environment_set_tonemap(RID p_env, EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white) = 0;
 	virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction) = 0;
 
@@ -1826,6 +1842,8 @@ VARIANT_ENUM_CAST(RenderingServer::EnvironmentBG);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentAmbientSource);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentReflectionSource);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentGlowBlendMode);
+// VARIANT_ENUM_CAST(RenderingServer::EnvironmentCAQuality);
+VARIANT_ENUM_CAST(RenderingServer::EnvironmentChromaticAberrationSampleMode);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentFogMode);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentToneMapper);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentSSRRoughnessQuality);

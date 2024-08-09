@@ -2975,7 +2975,7 @@ void RenderingServer::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("environment_set_ambient_light", "env", "color", "ambient", "energy", "sky_contibution", "reflection_source"), &RenderingServer::environment_set_ambient_light, DEFVAL(RS::ENV_AMBIENT_SOURCE_BG), DEFVAL(1.0), DEFVAL(0.0), DEFVAL(RS::ENV_REFLECTION_SOURCE_BG));
 	ClassDB::bind_method(D_METHOD("environment_set_glow", "env", "enable", "levels", "intensity", "strength", "mix", "bloom_threshold", "blend_mode", "hdr_bleed_threshold", "hdr_bleed_scale", "hdr_luminance_cap", "glow_map_strength", "glow_map"), &RenderingServer::environment_set_glow);
 	ClassDB::bind_method(D_METHOD("environment_set_tonemap", "env", "tone_mapper", "exposure", "white"), &RenderingServer::environment_set_tonemap);
-	ClassDB::bind_method(D_METHOD("environment_set_chromatic_aberration", "env", "enable", "quality", "edge_amount", "linear_amount", "center", "circular", "minimum_distance", "desaturation", "jitter_amount", "horizontal_smear", "vertical_smear", "spectrum_changed", "refraction_changed"), &RenderingServer::environment_set_chromatic_aberration);
+	ClassDB::bind_method(D_METHOD("environment_set_chromatic_aberration", "env", "enable", "mode", "jitter", "samples", "custom_texture", "edge_amount", "linear_amount", "center", "minimum_distance"), &RenderingServer::environment_set_chromatic_aberration);
 	ClassDB::bind_method(D_METHOD("environment_set_adjustment", "env", "enable", "brightness", "contrast", "saturation", "use_1d_color_correction", "color_correction"), &RenderingServer::environment_set_adjustment);
 	ClassDB::bind_method(D_METHOD("environment_set_ssr", "env", "enable", "max_steps", "fade_in", "fade_out", "depth_tolerance"), &RenderingServer::environment_set_ssr);
 	ClassDB::bind_method(D_METHOD("environment_set_ssao", "env", "enable", "radius", "intensity", "power", "detail", "horizon", "sharpness", "light_affect", "ao_channel_affect"), &RenderingServer::environment_set_ssao);
@@ -3021,6 +3021,18 @@ void RenderingServer::_bind_methods() {
 	BIND_ENUM_CONSTANT(ENV_GLOW_BLEND_MODE_SOFTLIGHT);
 	BIND_ENUM_CONSTANT(ENV_GLOW_BLEND_MODE_REPLACE);
 	BIND_ENUM_CONSTANT(ENV_GLOW_BLEND_MODE_MIX);
+
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_4);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_8);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_12);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_16);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_20);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_24);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_28);
+	// BIND_ENUM_CONSTANT(ENV_CA_QUALITY_32);
+	BIND_ENUM_CONSTANT(ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE);
+	BIND_ENUM_CONSTANT(ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE);
+	BIND_ENUM_CONSTANT(ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM);
 
 	BIND_ENUM_CONSTANT(ENV_FOG_MODE_EXPONENTIAL);
 	BIND_ENUM_CONSTANT(ENV_FOG_MODE_DEPTH);

@@ -34,6 +34,7 @@
 #include "servers/rendering/renderer_rd/pipeline_cache_rd.h"
 #include "servers/rendering/renderer_rd/shaders/effects/chromatic_aberration.glsl.gen.h"
 //#include "servers/rendering/renderer_rd/shaders/effects/chromatic_aberration.glsl.gen.h"
+#include "scene/resources/gradient_texture.h"
 #include "servers/rendering/renderer_rd/storage_rd/render_scene_buffers_rd.h"
 #include "servers/rendering/renderer_scene_render.h"
 #include "servers/rendering_server.h"
@@ -125,7 +126,9 @@ private:
 		int32_t pixel_count;
 		int32_t spiral_pixel_count;
 		uint32_t max_samples;
-		uint32_t pad;
+		uint32_t sample_mode;
+
+		//	uint32_t pad;
 	};
 
 	struct ProcessPushConstant {
@@ -133,19 +136,28 @@ private:
 		int32_t full_size[2];
 
 		float pixel_size[2];
-		float min_uv_delta;
-		float jitter_amount;
+		uint32_t sample_mode;
+		uint32_t jitter;
 
 		float jitter_seed[2];
 		float max_samples;
-		uint32_t pad;
+		float edge_factor;
+
+		float linear_factor;
+		float minimum_distance;
+		float center[2];
+		// uint32_t pad;
 	};
 
 	enum ChromaticAberrationMode {
 		SPECTRUM,
 		//REFRACTION_LINE,
 		REFRACTION_BOX,
-		PROCESS,
+		PROCESS_TWO_TONE,
+		PROCESS_THREE_TONE,
+		PROCESS_SPECTRUM_DEFAULT,
+		PROCESS_SPECTRUM_CUSTOM,
+
 		COMPOSITE,
 		MAX_MODES
 	};
@@ -164,6 +176,10 @@ private:
 
 public:
 	//	bool needs_update = true;
+	RID custom_texture;
+	Ref<Texture> default_spectrum_texture;
+	RID default_spectrum_texture_rid;
+
 	Vector2i refraction_size = Vector2i(0, 0);
 	//	struct ChromaticAberrationBuffers {
 	//		// bokeh buffers
@@ -177,7 +193,7 @@ public:
 	//		// RID half_texture;
 	//		RID secondary_texture;
 	//		RID refraction_texture;
-	//		RID spectrum_texture;
+	//		RID custom_texture;
 	//
 	//		//	RID half_texture[2];
 	//		//
@@ -196,7 +212,7 @@ public:
 
 	public:
 		RID spectrum;
-		RID refraction;
+		//	RID refraction;
 
 		virtual void configure(RenderSceneBuffersRD *p_render_buffers) override;
 		virtual void free_data() override;
@@ -229,14 +245,14 @@ public:
 
 	// void Luminance::luminance_reduction(RID p_source_texture, const Size2i p_source_size, Ref<LuminanceBuffers> p_luminance_buffers, float p_min_luminance, float p_max_luminance, float p_adjust, bool p_set) {
 
-	void initialize_spectrum_texture(RID p_environment, RID p_spectrum);
+	void initialize_spectrum_texture(RID p_spectrum);
 	void update_refraction_texture(RID p_refraction, RID p_environment, Size2i p_half_size, Size2i p_full_size, Size2 p_center, float p_diagonal);
-	void chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_half_size, Size2i p_full_size, Size2 p_center, float p_diagonal, Ref<RenderSceneBuffersRD> p_render_buffers, Ref<ChromaticAberrationBuffers> p_buffers, RID p_camera_attributes);
+	void chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_half_size, Size2i p_full_size, Size2 p_center, float p_diagonal, RID p_camera_attributes, RID p_custom_spectrum_texture);
 	Ref<ChromaticAberration::ChromaticAberrationBuffers> get_buffers(Ref<RenderSceneBuffersRD> p_render_buffers, RID p_environment);
 
-	//	void initialize_spectrum_texture(const ChromaticAberrationBuffers &p_buffers);
-	// void initialize_spectrum_texture(Ref<ChromaticAberrationBuffers> p_buffers);
-	//	void initialize_spectrum_texture(RID p_spectrum);
+	//	void initialize_custom_texture(const ChromaticAberrationBuffers &p_buffers);
+	// void initialize_custom_texture(Ref<ChromaticAberrationBuffers> p_buffers);
+	//	void initialize_custom_texture(RID p_spectrum);
 	//void bokeh_dof_raster(const BokehBuffers &p_buffers, RID p_camera_attributes, float p_cam_znear, float p_cam_zfar, bool p_cam_orthogonal);
 };
 } // namespace RendererRD

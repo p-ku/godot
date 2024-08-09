@@ -684,16 +684,28 @@ RS::EnvironmentSDFGIYScale RendererSceneRender::environment_get_sdfgi_y_scale(RI
 
 // Chromatic Aberration
 
-void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, float p_quality, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, bool p_circular, float p_minimum_distance, float p_desaturation, float p_jitter_amount, float p_horizontal_smear, float p_vertical_smear, bool p_spectrum_changed, bool p_refraction_changed) {
-	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_quality, p_edge_amount, p_linear_amount, p_center, p_circular, p_minimum_distance, p_desaturation, p_jitter_amount, p_horizontal_smear, p_vertical_smear, p_spectrum_changed, p_refraction_changed);
+void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance) {
+	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_mode, p_jitter, p_samples, p_custom_texture, p_edge_amount, p_linear_amount, p_center, p_minimum_distance);
 }
 
 bool RendererSceneRender::environment_get_chromatic_aberration_enabled(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_enabled(p_env);
 }
 
-float RendererSceneRender::environment_get_chromatic_aberration_quality(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_quality(p_env);
+RS::EnvironmentChromaticAberrationSampleMode RendererSceneRender::environment_get_chromatic_aberration_sample_mode(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_sample_mode(p_env);
+}
+
+bool RendererSceneRender::environment_get_chromatic_aberration_jitter(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_jitter(p_env);
+}
+
+int RendererSceneRender::environment_get_chromatic_aberration_samples(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_samples(p_env);
+}
+
+RID RendererSceneRender::environment_get_chromatic_aberration_custom_texture(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_custom_texture(p_env);
 }
 
 float RendererSceneRender::environment_get_chromatic_aberration_edge_amount(RID p_env) const {
@@ -708,36 +720,8 @@ Vector2 RendererSceneRender::environment_get_chromatic_aberration_center(RID p_e
 	return environment_storage.environment_get_chromatic_aberration_center(p_env);
 }
 
-bool RendererSceneRender::environment_get_chromatic_aberration_circular(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_circular(p_env);
-}
-
 float RendererSceneRender::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_minimum_distance(p_env);
-}
-
-float RendererSceneRender::environment_get_chromatic_aberration_desaturation(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_desaturation(p_env);
-}
-
-float RendererSceneRender::environment_get_chromatic_aberration_jitter_amount(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_jitter_amount(p_env);
-}
-
-float RendererSceneRender::environment_get_chromatic_aberration_horizontal_smear(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_horizontal_smear(p_env);
-}
-
-float RendererSceneRender::environment_get_chromatic_aberration_vertical_smear(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_vertical_smear(p_env);
-}
-
-uint64_t RendererSceneRender::environment_get_chromatic_aberration_spectrum_version(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_spectrum_version(p_env);
-}
-
-uint64_t RendererSceneRender::environment_get_chromatic_aberration_refraction_version(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_refraction_version(p_env);
 }
 
 // Adjustments

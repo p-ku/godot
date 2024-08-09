@@ -88,6 +88,22 @@ public:
 		GLOW_BLEND_MODE_MIX,
 	};
 
+	// enum CAQuality {
+	// 	CA_QUALITY_4,
+	// 	CA_QUALITY_8,
+	// 	CA_QUALITY_12,
+	// 	CA_QUALITY_16,
+	// 	CA_QUALITY_20,
+	// 	CA_QUALITY_24,
+	// 	CA_QUALITY_28,
+	// 	CA_QUALITY_32,
+	// };
+	enum ChromaticAberrationSampleMode {
+		CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE,
+		CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE,
+		CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM,
+	};
+
 private:
 	RID environment;
 
@@ -214,25 +230,17 @@ private:
 
 	// Chromatic Aberration
 	bool chromatic_aberration_enabled = false;
-	float chromatic_aberration_quality = 0.5;
+	ChromaticAberrationSampleMode chromatic_aberration_sample_mode = CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM;
+
+	// CAQuality chromatic_aberration_quality = CA_QUALITY_4;
+	bool chromatic_aberration_jitter = true;
+	int chromatic_aberration_samples = 4;
+	Ref<Texture> chromatic_aberration_custom_texture;
 	float chromatic_aberration_edge_amount = 0.5;
 	float chromatic_aberration_linear_amount = 0.0;
 	Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
-	bool chromatic_aberration_circular = true;
 	float chromatic_aberration_minimum_distance = 0.0;
-	float chromatic_aberration_desaturation = 0.0;
-	// PackedColorArray chromatic_aberration_colors = {
-	// 	Color(1.0, 0.0, 0.0),
-	// 	Color(0.0, 1.0, 0.0),
-	// 	Color(0.0, 0.0, 1.0)
-	// };
-	float chromatic_aberration_jitter_amount = 1.0;
-	float chromatic_aberration_horizontal_smear = 0.0;
-	float chromatic_aberration_vertical_smear = 0.0;
-
-	// Ref<Texture> spectrum;
-	bool spectrum_changed = true;
-	bool refraction_changed = true;
+	Ref<Texture> chromatic_aberration_default_spectrum_texture;
 
 	void _update_chromatic_aberration();
 
@@ -469,30 +477,22 @@ public:
 	// Chromatic Aberration
 	void set_chromatic_aberration_enabled(bool p_enabled);
 	bool is_chromatic_aberration_enabled() const;
-	void set_chromatic_aberration_quality(float p_quality);
-	float get_chromatic_aberration_quality() const;
+	void set_chromatic_aberration_sample_mode(ChromaticAberrationSampleMode p_mode);
+	ChromaticAberrationSampleMode get_chromatic_aberration_sample_mode() const;
+	void set_chromatic_aberration_jitter(bool p_jitter);
+	bool get_chromatic_aberration_jitter() const;
+	void set_chromatic_aberration_samples(int p_samples);
+	int get_chromatic_aberration_samples() const;
+	void set_chromatic_aberration_custom_texture(Ref<Texture> p_custom_texture);
+	Ref<Texture> get_chromatic_aberration_custom_texture() const;
 	void set_chromatic_aberration_edge_amount(float p_amount);
 	float get_chromatic_aberration_edge_amount() const;
 	void set_chromatic_aberration_linear_amount(float p_amount);
 	float get_chromatic_aberration_linear_amount() const;
 	void set_chromatic_aberration_center(Vector2 p_center);
 	Vector2 get_chromatic_aberration_center() const;
-	void set_chromatic_aberration_circular(bool p_center);
-	bool is_chromatic_aberration_circular() const;
 	void set_chromatic_aberration_minimum_distance(float p_distance);
 	float get_chromatic_aberration_minimum_distance() const;
-	void set_chromatic_aberration_desaturation(float p_desaturation);
-	float get_chromatic_aberration_desaturation() const;
-	//void set_chromatic_aberration_colors(PackedColorArray p_colors);
-	//PackedColorArray get_chromatic_aberration_colors() const;
-	void set_chromatic_aberration_jitter_amount(float p_amount);
-	float get_chromatic_aberration_jitter_amount() const;
-	void set_chromatic_aberration_horizontal_smear(float p_amount);
-	float get_chromatic_aberration_horizontal_smear() const;
-	void set_chromatic_aberration_vertical_smear(float p_direction);
-	float get_chromatic_aberration_vertical_smear() const;
-
-	bool chromatic_aberration_refraction_needs_update(RID p_env) const;
 
 	Environment();
 	~Environment();
@@ -504,6 +504,7 @@ VARIANT_ENUM_CAST(Environment::ReflectionSource)
 VARIANT_ENUM_CAST(Environment::ToneMapper)
 VARIANT_ENUM_CAST(Environment::SDFGIYScale)
 VARIANT_ENUM_CAST(Environment::GlowBlendMode)
+VARIANT_ENUM_CAST(Environment::ChromaticAberrationSampleMode)
 VARIANT_ENUM_CAST(Environment::FogMode)
 
 #endif // ENVIRONMENT_H
