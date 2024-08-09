@@ -1167,17 +1167,7 @@ public:
 		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE,
 		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM
 	};
-	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance) = 0;
-	// enum EnvironmentCAQuality {
-	// 	ENV_CA_QUALITY_4,
-	// 	ENV_CA_QUALITY_8,
-	// 	ENV_CA_QUALITY_12,
-	// 	ENV_CA_QUALITY_16,
-	// 	ENV_CA_QUALITY_20,
-	// 	ENV_CA_QUALITY_24,
-	// 	ENV_CA_QUALITY_28,
-	// 	ENV_CA_QUALITY_32,
-	// };
+	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) = 0;
 
 	virtual void environment_set_tonemap(RID p_env, EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white) = 0;
 	virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction) = 0;

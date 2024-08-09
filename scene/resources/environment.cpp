@@ -1059,15 +1059,6 @@ int Environment::get_chromatic_aberration_samples() const {
 	return chromatic_aberration_samples;
 }
 
-void Environment::set_chromatic_aberration_custom_texture(Ref<Texture> p_custom_texture) {
-	chromatic_aberration_custom_texture = p_custom_texture;
-	_update_chromatic_aberration();
-}
-
-Ref<Texture> Environment::get_chromatic_aberration_custom_texture() const {
-	return chromatic_aberration_custom_texture;
-}
-
 void Environment::set_chromatic_aberration_edge_amount(float p_amount) {
 	chromatic_aberration_edge_amount = p_amount;
 	_update_chromatic_aberration();
@@ -1075,24 +1066,6 @@ void Environment::set_chromatic_aberration_edge_amount(float p_amount) {
 
 float Environment::get_chromatic_aberration_edge_amount() const {
 	return chromatic_aberration_edge_amount;
-}
-
-void Environment::set_chromatic_aberration_linear_amount(float p_amount) {
-	chromatic_aberration_linear_amount = p_amount;
-	_update_chromatic_aberration();
-}
-
-float Environment::get_chromatic_aberration_linear_amount() const {
-	return chromatic_aberration_linear_amount;
-}
-
-void Environment::set_chromatic_aberration_center(Vector2 p_center) {
-	chromatic_aberration_center = p_center;
-	_update_chromatic_aberration();
-}
-
-Vector2 Environment::get_chromatic_aberration_center() const {
-	return chromatic_aberration_center;
 }
 
 void Environment::set_chromatic_aberration_minimum_distance(float p_distance) {
@@ -1104,24 +1077,25 @@ float Environment::get_chromatic_aberration_minimum_distance() const {
 	return chromatic_aberration_minimum_distance;
 }
 
+void Environment::set_chromatic_aberration_desaturation(float p_desaturation) {
+	chromatic_aberration_desaturation = p_desaturation;
+	_update_chromatic_aberration();
+}
+
+float Environment::get_chromatic_aberration_desaturation() const {
+	return chromatic_aberration_desaturation;
+}
+
 void Environment::_update_chromatic_aberration() {
-	RID chromatic_aberration_custom_texture_rid;
-	if (chromatic_aberration_custom_texture.is_valid()) {
-		chromatic_aberration_custom_texture_rid = chromatic_aberration_custom_texture->get_rid();
-	} else {
-		chromatic_aberration_custom_texture_rid = RID();
-	}
 	RS::get_singleton()->environment_set_chromatic_aberration(
 			environment,
 			chromatic_aberration_enabled,
 			RS::EnvironmentChromaticAberrationSampleMode(chromatic_aberration_sample_mode),
 			chromatic_aberration_jitter,
 			chromatic_aberration_samples,
-			chromatic_aberration_custom_texture_rid,
 			chromatic_aberration_edge_amount,
-			chromatic_aberration_linear_amount,
-			chromatic_aberration_center,
-			chromatic_aberration_minimum_distance);
+			chromatic_aberration_minimum_distance,
+			chromatic_aberration_desaturation);
 }
 
 // Adjustment
@@ -1661,27 +1635,22 @@ void Environment::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_jitter"), &Environment::get_chromatic_aberration_jitter);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_samples", "samples"), &Environment::set_chromatic_aberration_samples);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_samples"), &Environment::get_chromatic_aberration_samples);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_custom_texture", "texture"), &Environment::set_chromatic_aberration_custom_texture);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_custom_texture"), &Environment::get_chromatic_aberration_custom_texture);
+
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_edge_amount", "amount"), &Environment::set_chromatic_aberration_edge_amount);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_edge_amount"), &Environment::get_chromatic_aberration_edge_amount);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_linear_amount", "amount"), &Environment::set_chromatic_aberration_linear_amount);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_linear_amount"), &Environment::get_chromatic_aberration_linear_amount);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_center", "center"), &Environment::set_chromatic_aberration_center);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_center"), &Environment::get_chromatic_aberration_center);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_minimum_distance", "distance"), &Environment::set_chromatic_aberration_minimum_distance);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_minimum_distance"), &Environment::get_chromatic_aberration_minimum_distance);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_desaturation", "desaturation"), &Environment::set_chromatic_aberration_desaturation);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_desaturation"), &Environment::get_chromatic_aberration_desaturation);
 
 	ADD_GROUP("Chromatic Aberration", "chromatic_aberration_");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_enabled"), "set_chromatic_aberration_enabled", "is_chromatic_aberration_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_sample_mode", PROPERTY_HINT_ENUM, "Two-Tone,Three-Tone,Spectrum"), "set_chromatic_aberration_sample_mode", "get_chromatic_aberration_sample_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_jitter"), "set_chromatic_aberration_jitter", "get_chromatic_aberration_jitter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_samples", PROPERTY_HINT_RANGE, "4,64,4"), "set_chromatic_aberration_samples", "get_chromatic_aberration_samples");
-	ADD_PROPERTY(PropertyInfo(Variant::OBJECT, "chromatic_aberration_custom_texture", PROPERTY_HINT_RESOURCE_TYPE, "GradientTexture1D"), "set_chromatic_aberration_custom_texture", "get_chromatic_aberration_custom_texture");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_edge_amount", PROPERTY_HINT_RANGE, "0.01,1.0,0.01"), "set_chromatic_aberration_edge_amount", "get_chromatic_aberration_edge_amount");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_linear_amount", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_linear_amount", "get_chromatic_aberration_linear_amount");
-	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "chromatic_aberration_center", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_center", "get_chromatic_aberration_center");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_minimum_distance", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_minimum_distance", "get_chromatic_aberration_minimum_distance");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_desaturation", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_desaturation", "get_chromatic_aberration_desaturation");
 
 	// Adjustment
 

@@ -734,7 +734,7 @@ public:
 	FUNC13(environment_set_glow, RID, bool, Vector<float>, float, float, float, float, EnvironmentGlowBlendMode, float, float, float, float, RID)
 	FUNC1(environment_glow_set_use_bicubic_upscale, bool)
 
-	FUNC10(environment_set_chromatic_aberration, RID, bool, EnvironmentChromaticAberrationSampleMode, bool, int, RID, float, float, const Vector2 &, float)
+	FUNC8(environment_set_chromatic_aberration, RID, bool, EnvironmentChromaticAberrationSampleMode, bool, int, float, float, float)
 
 	FUNC4(environment_set_tonemap, RID, EnvironmentToneMapper, float, float)
 

@@ -235,12 +235,9 @@ private:
 	// CAQuality chromatic_aberration_quality = CA_QUALITY_4;
 	bool chromatic_aberration_jitter = true;
 	int chromatic_aberration_samples = 4;
-	Ref<Texture> chromatic_aberration_custom_texture;
 	float chromatic_aberration_edge_amount = 0.5;
-	float chromatic_aberration_linear_amount = 0.0;
-	Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
 	float chromatic_aberration_minimum_distance = 0.0;
-	Ref<Texture> chromatic_aberration_default_spectrum_texture;
+	float chromatic_aberration_desaturation = 0.0;
 
 	void _update_chromatic_aberration();
 
@@ -483,16 +480,12 @@ public:
 	bool get_chromatic_aberration_jitter() const;
 	void set_chromatic_aberration_samples(int p_samples);
 	int get_chromatic_aberration_samples() const;
-	void set_chromatic_aberration_custom_texture(Ref<Texture> p_custom_texture);
-	Ref<Texture> get_chromatic_aberration_custom_texture() const;
 	void set_chromatic_aberration_edge_amount(float p_amount);
 	float get_chromatic_aberration_edge_amount() const;
-	void set_chromatic_aberration_linear_amount(float p_amount);
-	float get_chromatic_aberration_linear_amount() const;
-	void set_chromatic_aberration_center(Vector2 p_center);
-	Vector2 get_chromatic_aberration_center() const;
 	void set_chromatic_aberration_minimum_distance(float p_distance);
 	float get_chromatic_aberration_minimum_distance() const;
+	void set_chromatic_aberration_desaturation(float p_distance);
+	float get_chromatic_aberration_desaturation() const;
 
 	Environment();
 	~Environment();

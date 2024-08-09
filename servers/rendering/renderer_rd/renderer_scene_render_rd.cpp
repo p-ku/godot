@@ -570,68 +570,19 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 		RENDER_TIMESTAMP("Chromatic Aberration");
 		RD::get_singleton()->draw_command_begin_label("Chromatic aberration");
 
-		//	Ref<RendererRD::ChromaticAberration::ChromaticAberrationBuffers> ca_buffers = chromatic_aberration->get_buffers(rb, p_render_data->environment);
-
 		Size2i full_size = rb->get_internal_size();
 		Point2 center = 0.5 * Size2(full_size);
 
-		float diagonal = center.length();
-		Size2i half_size = Size2i((full_size.x % 2) + (full_size.x >> 1), (full_size.y % 2) + (full_size.y >> 1));
-		//	half_size.x = full_size.x >> 1;
-		//	half_size.y = full_size.y >> 1;
-		//	half_size.x = (full_size.x % 2) + (full_size.x >> 1);
-		//		half_size.y = (full_size.y % 2) + (full_size.y >> 1);
-		//	half_size = center;
+		// Size2i half_size = Size2i((full_size.x % 2) + (full_size.x >> 1), (full_size.y % 2) + (full_size.y >> 1));
+
 		RID texture = rb->get_internal_texture();
 
-		// chromatic_aberration->initialize_spectrum_texture(p_render_data->environment, ca_buffers->spectrum);
-
-		float minimum_distance = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_edge_amount(p_render_data->environment);
-
-		//	if (!rb->has_texture(RB_CHROMATIC_ABERRATION_BUFFERS, REFRACTION_BUFFER)) {
-		//	RenderingDevice::TextureFormat format = RD::get_singleton()->texture_get_format(ca_buffers->refraction);
-
-		// if (stored_refraction_version != rb->get_chromatic_aberration_refraction_version() || chromatic_aberration->refraction_size.x != full_size.x || chromatic_aberration->refraction_size.y != full_size.y) {
-		// 	//	if (chromatic_aberration->refraction_size.x != size.x || chromatic_aberration->refraction_size.y != size.y) {
-		// 	//			chromatic_aberration->refraction_size = size;
-		// 	chromatic_aberration->update_refraction_texture(ca_buffers->refraction, p_render_data->environment, half_size, full_size, center, diagonal);
-		// 	rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
-		// 	chromatic_aberration->refraction_size = full_size;
-		// 	WARN_PRINT("refr");
-		// }
-		//	if (stored_refraction_version != rb->get_chromatic_aberration_refraction_version()) {
-		//		rb->set_chromatic_aberration_refraction_version(stored_refraction_version);
-		//	}
-
-		// Ref<RendererRD::ChromaticAberration::CACustomBuffers> ca_custom_buffers = chromatic_aberration->get_ca_buffers(rb);
 		rb->allocate_blur_textures();
 		//RID half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
 		RID second_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
-		RID custom_tex = environment_get_chromatic_aberration_custom_texture(p_render_data->environment);
-		//chromatic_aberration->custom_texture = texture_storage->texture_get_rd_texture(custom_tex);
-		//	chromatic_aberration->custom_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
-		if (custom_tex.is_valid()) {
-			chromatic_aberration->custom_texture = texture_storage->texture_get_rd_texture(custom_tex);
-		} //else {
-		  // 	//	chromatic_aberration->custom_texture = chromatic_aberration->default_spectrum_texture_rid;
-		//	chromatic_aberration->custom_texture = ca_buffers->spectrum;
-
-		//	} // else {
-		// 	// if (chromatic_aberration->default_spectrum_texture_rid.is_valid()) {
-		// 	// 	chromatic_aberration->custom_texture = texture_storage->texture_get_rd_texture(chromatic_aberration->default_spectrum_texture_rid);
-		// 	// } else {
-		// 	//chromatic_aberration->custom_texture = texture_storage->texture_rd_get_default(RendererRD::TextureStorage::DEFAULT_RD_TEXTURE_WHITE);
-
-		// 	chromatic_aberration->custom_texture = texture_storage->texture_get_rd_texture(default_spectrum_texture2->get_rid());
-
-		// 	//			set_chromatic_aberration_custom_texture(default_spectrum_texture2);
-		// 	//	default_spectrum_texture_rid = default_spectrum_texture->get_rid();
-		// 	// default_spectrum_texture = default_spectrum_tex;
-		// 	//	}
-		// }
 
 		for (uint32_t i = 0; i < rb->get_view_count(); i++) {
-			chromatic_aberration->chromatic_aberration_process(texture, second_texture, half_size, full_size, center, diagonal, p_render_data->environment, custom_tex);
+			chromatic_aberration->chromatic_aberration_process(texture, second_texture, full_size, center, p_render_data->environment);
 		}
 		RD::get_singleton()->draw_command_end_label();
 	}

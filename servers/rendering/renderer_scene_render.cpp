@@ -684,8 +684,8 @@ RS::EnvironmentSDFGIYScale RendererSceneRender::environment_get_sdfgi_y_scale(RI
 
 // Chromatic Aberration
 
-void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance) {
-	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_mode, p_jitter, p_samples, p_custom_texture, p_edge_amount, p_linear_amount, p_center, p_minimum_distance);
+void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) {
+	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_mode, p_jitter, p_samples, p_edge_amount, p_minimum_distance, p_desaturation);
 }
 
 bool RendererSceneRender::environment_get_chromatic_aberration_enabled(RID p_env) const {
@@ -704,24 +704,15 @@ int RendererSceneRender::environment_get_chromatic_aberration_samples(RID p_env)
 	return environment_storage.environment_get_chromatic_aberration_samples(p_env);
 }
 
-RID RendererSceneRender::environment_get_chromatic_aberration_custom_texture(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_custom_texture(p_env);
-}
-
 float RendererSceneRender::environment_get_chromatic_aberration_edge_amount(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_edge_amount(p_env);
 }
 
-float RendererSceneRender::environment_get_chromatic_aberration_linear_amount(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_linear_amount(p_env);
-}
-
-Vector2 RendererSceneRender::environment_get_chromatic_aberration_center(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_center(p_env);
-}
-
 float RendererSceneRender::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_minimum_distance(p_env);
+}
+float RendererSceneRender::environment_get_chromatic_aberration_desaturation(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_desaturation(p_env);
 }
 
 // Adjustments

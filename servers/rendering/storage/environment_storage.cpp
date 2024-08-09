@@ -770,7 +770,7 @@ RS::EnvironmentSDFGIYScale RendererEnvironmentStorage::environment_get_sdfgi_y_s
 
 // Chromatic Aberration
 
-void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance) {
+void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL(env);
 
@@ -783,11 +783,9 @@ void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env,
 	env->chromatic_aberration_sample_mode = p_mode;
 	env->chromatic_aberration_jitter = p_jitter;
 	env->chromatic_aberration_samples = p_samples;
-	env->chromatic_aberration_custom_texture = p_custom_texture;
 	env->chromatic_aberration_edge_amount = p_edge_amount;
-	env->chromatic_aberration_linear_amount = p_linear_amount;
-	env->chromatic_aberration_center = p_center;
 	env->chromatic_aberration_minimum_distance = p_minimum_distance;
+	env->chromatic_aberration_desaturation = p_desaturation;
 }
 
 bool RendererEnvironmentStorage::environment_get_chromatic_aberration_enabled(RID p_env) const {
@@ -820,34 +818,22 @@ int RendererEnvironmentStorage::environment_get_chromatic_aberration_samples(RID
 	return env->chromatic_aberration_samples;
 }
 
-RID RendererEnvironmentStorage::environment_get_chromatic_aberration_custom_texture(RID p_env) const {
-	Environment *env = environment_owner.get_or_null(p_env);
-	ERR_FAIL_NULL_V(env, RID());
-	return env->chromatic_aberration_custom_texture;
-}
-
 float RendererEnvironmentStorage::environment_get_chromatic_aberration_edge_amount(RID p_env) const {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL_V(env, 1.0);
 	return env->chromatic_aberration_edge_amount;
 }
 
-float RendererEnvironmentStorage::environment_get_chromatic_aberration_linear_amount(RID p_env) const {
-	Environment *env = environment_owner.get_or_null(p_env);
-	ERR_FAIL_NULL_V(env, 0.0);
-	return env->chromatic_aberration_linear_amount;
-}
-
-Vector2 RendererEnvironmentStorage::environment_get_chromatic_aberration_center(RID p_env) const {
-	Environment *env = environment_owner.get_or_null(p_env);
-	ERR_FAIL_NULL_V(env, Vector2(0.5, 0.5));
-	return env->chromatic_aberration_center;
-}
-
 float RendererEnvironmentStorage::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL_V(env, 0.0);
 	return env->chromatic_aberration_minimum_distance;
+}
+
+float RendererEnvironmentStorage::environment_get_chromatic_aberration_desaturation(RID p_env) const {
+	Environment *env = environment_owner.get_or_null(p_env);
+	ERR_FAIL_NULL_V(env, 0.0);
+	return env->chromatic_aberration_desaturation;
 }
 
 // Adjustments

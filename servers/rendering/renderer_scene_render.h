@@ -245,17 +245,14 @@ public:
 	virtual void environment_set_sdfgi_frames_to_update_light(RS::EnvironmentSDFGIFramesToUpdateLight p_update) = 0;
 
 	// Chromatic Aberration
-	void environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, RID p_custom_texture, float p_edge_amount, float p_linear_amount, const Vector2 &p_center, float p_minimum_distance);
+	void environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation);
 	bool environment_get_chromatic_aberration_enabled(RID p_env) const;
 	RS::EnvironmentChromaticAberrationSampleMode environment_get_chromatic_aberration_sample_mode(RID p_env) const;
-	// RS::EnvironmentCAQuality environment_get_chromatic_aberration_quality(RID p_env) const;
 	bool environment_get_chromatic_aberration_jitter(RID p_env) const;
 	int environment_get_chromatic_aberration_samples(RID p_env) const;
-	RID environment_get_chromatic_aberration_custom_texture(RID p_env) const;
 	float environment_get_chromatic_aberration_edge_amount(RID p_env) const;
-	float environment_get_chromatic_aberration_linear_amount(RID p_env) const;
-	Vector2 environment_get_chromatic_aberration_center(RID p_env) const;
 	float environment_get_chromatic_aberration_minimum_distance(RID p_env) const;
+	float environment_get_chromatic_aberration_desaturation(RID p_env) const;
 
 	// Adjustment
 	void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction);
