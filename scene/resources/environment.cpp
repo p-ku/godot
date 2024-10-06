@@ -1049,13 +1049,13 @@ int Environment::get_chromatic_aberration_samples() const {
 	return chromatic_aberration_samples;
 }
 
-void Environment::set_chromatic_aberration_edge_amount(float p_amount) {
-	chromatic_aberration_edge_amount = p_amount;
+void Environment::set_chromatic_aberration_intensity(float p_amount) {
+	chromatic_aberration_intensity = p_amount;
 	_update_chromatic_aberration();
 }
 
-float Environment::get_chromatic_aberration_edge_amount() const {
-	return chromatic_aberration_edge_amount;
+float Environment::get_chromatic_aberration_intensity() const {
+	return chromatic_aberration_intensity;
 }
 
 void Environment::set_chromatic_aberration_minimum_distance(float p_distance) {
@@ -1091,8 +1091,8 @@ void Environment::_update_chromatic_aberration() {
 			chromatic_aberration_enabled,
 			chromatic_aberration_jitter,
 			chromatic_aberration_samples,
-			0.25 * Math_PI * chromatic_aberration_edge_amount,
-			//0.25 * Math_PI * chromatic_aberration_edge_amount / Math_SQRT12,
+			0.25 * Math_PI * chromatic_aberration_intensity,
+			//0.25 * Math_PI * chromatic_aberration_intensity / Math_SQRT12,
 			chromatic_aberration_minimum_distance,
 			Vector2(chromatic_aberration_center.x, 1.0 - chromatic_aberration_center.y));
 	// chromatic_aberration_half_resolution);
@@ -1627,8 +1627,8 @@ void Environment::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_jitter"), &Environment::get_chromatic_aberration_jitter);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_samples", "samples"), &Environment::set_chromatic_aberration_samples);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_samples"), &Environment::get_chromatic_aberration_samples);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_edge_amount", "amount"), &Environment::set_chromatic_aberration_edge_amount);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_edge_amount"), &Environment::get_chromatic_aberration_edge_amount);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_intensity", "amount"), &Environment::set_chromatic_aberration_intensity);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_intensity"), &Environment::get_chromatic_aberration_intensity);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_minimum_distance", "distance"), &Environment::set_chromatic_aberration_minimum_distance);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_minimum_distance"), &Environment::get_chromatic_aberration_minimum_distance);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_center", "center"), &Environment::set_chromatic_aberration_center);
@@ -1640,7 +1640,7 @@ void Environment::_bind_methods() {
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_enabled"), "set_chromatic_aberration_enabled", "is_chromatic_aberration_enabled");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_jitter"), "set_chromatic_aberration_jitter", "get_chromatic_aberration_jitter");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_samples", PROPERTY_HINT_RANGE, "2,100,1"), "set_chromatic_aberration_samples", "get_chromatic_aberration_samples");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_edge_amount", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_edge_amount", "get_chromatic_aberration_edge_amount");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_intensity", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_intensity", "get_chromatic_aberration_intensity");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_minimum_distance", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_minimum_distance", "get_chromatic_aberration_minimum_distance");
 	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "chromatic_aberration_center", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_center", "get_chromatic_aberration_center");
 	// ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_half_resolution"), "set_chromatic_aberration_half_resolution", "get_chromatic_aberration_half_resolution");

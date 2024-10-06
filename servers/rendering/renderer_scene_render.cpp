@@ -700,8 +700,8 @@ int RendererSceneRender::environment_get_chromatic_aberration_samples(RID p_env)
 	return environment_storage.environment_get_chromatic_aberration_samples(p_env);
 }
 
-float RendererSceneRender::environment_get_chromatic_aberration_edge_amount(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_edge_amount(p_env);
+float RendererSceneRender::environment_get_chromatic_aberration_intensity(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_intensity(p_env);
 }
 
 float RendererSceneRender::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {

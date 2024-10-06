@@ -150,7 +150,7 @@ private:
 		bool chromatic_aberration_enabled = false;
 		bool chromatic_aberration_jitter = true;
 		int chromatic_aberration_samples = 4;
-		float chromatic_aberration_edge_amount = 0.5;
+		float chromatic_aberration_intensity = 0.5;
 		float chromatic_aberration_minimum_distance = 0.0;
 		Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
 		bool chromatic_aberration_half_resolution = true;
@@ -311,7 +311,7 @@ public:
 	bool environment_get_chromatic_aberration_enabled(RID p_env) const;
 	bool environment_get_chromatic_aberration_jitter(RID p_env) const;
 	int environment_get_chromatic_aberration_samples(RID p_env) const;
-	float environment_get_chromatic_aberration_edge_amount(RID p_env) const;
+	float environment_get_chromatic_aberration_intensity(RID p_env) const;
 	float environment_get_chromatic_aberration_minimum_distance(RID p_env) const;
 	Vector2 environment_get_chromatic_aberration_center(RID p_env) const;
 	// bool environment_get_chromatic_aberration_half_resolution(RID p_env) const;

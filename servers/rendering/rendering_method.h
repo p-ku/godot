@@ -306,7 +306,7 @@ public:
 	virtual bool environment_get_chromatic_aberration_enabled(RID p_env) const = 0;
 	virtual bool environment_get_chromatic_aberration_jitter(RID p_env) const = 0;
 	virtual int environment_get_chromatic_aberration_samples(RID p_env) const = 0;
-	virtual float environment_get_chromatic_aberration_edge_amount(RID p_env) const = 0;
+	virtual float environment_get_chromatic_aberration_intensity(RID p_env) const = 0;
 	virtual float environment_get_chromatic_aberration_minimum_distance(RID p_env) const = 0;
 	virtual Vector2 environment_get_chromatic_aberration_center(RID p_env) const = 0;
 	// virtual bool environment_get_chromatic_aberration_half_resolution(RID p_env) const = 0;

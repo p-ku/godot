@@ -782,7 +782,7 @@ void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env,
 	env->chromatic_aberration_enabled = p_enable;
 	env->chromatic_aberration_jitter = p_jitter;
 	env->chromatic_aberration_samples = p_samples;
-	env->chromatic_aberration_edge_amount = p_edge_amount;
+	env->chromatic_aberration_intensity = p_edge_amount;
 	env->chromatic_aberration_minimum_distance = p_minimum_distance;
 	env->chromatic_aberration_center = p_center;
 	// env->chromatic_aberration_half_resolution = p_half_resolution;
@@ -806,10 +806,10 @@ int RendererEnvironmentStorage::environment_get_chromatic_aberration_samples(RID
 	return env->chromatic_aberration_samples;
 }
 
-float RendererEnvironmentStorage::environment_get_chromatic_aberration_edge_amount(RID p_env) const {
+float RendererEnvironmentStorage::environment_get_chromatic_aberration_intensity(RID p_env) const {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL_V(env, 1.0);
-	return env->chromatic_aberration_edge_amount;
+	return env->chromatic_aberration_intensity;
 }
 
 float RendererEnvironmentStorage::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {

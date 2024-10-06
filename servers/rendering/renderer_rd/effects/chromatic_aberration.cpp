@@ -72,7 +72,7 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	bool jitter = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_jitter(p_environment);
 	int samples = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_samples(p_environment);
 
-	float edge_amount = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_edge_amount(p_environment);
+	float edge_amount = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_intensity(p_environment);
 	float minimum_distance = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_minimum_distance(p_environment);
 	Point2 center = Point2(p_size) * RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);
 	//Point2 center = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);

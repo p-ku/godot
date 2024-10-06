@@ -1359,7 +1359,7 @@ public:
 	PASS1RC(bool, environment_get_chromatic_aberration_enabled, RID)
 	PASS1RC(bool, environment_get_chromatic_aberration_jitter, RID)
 	PASS1RC(int, environment_get_chromatic_aberration_samples, RID)
-	PASS1RC(float, environment_get_chromatic_aberration_edge_amount, RID)
+	PASS1RC(float, environment_get_chromatic_aberration_intensity, RID)
 	PASS1RC(float, environment_get_chromatic_aberration_minimum_distance, RID)
 	PASS1RC(Vector2, environment_get_chromatic_aberration_center, RID)
 	// PASS1RC(bool, environment_get_chromatic_aberration_half_resolution, RID)
