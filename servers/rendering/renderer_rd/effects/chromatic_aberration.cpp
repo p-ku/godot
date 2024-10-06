@@ -72,7 +72,7 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	bool jitter = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_jitter(p_environment);
 	int samples = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_samples(p_environment);
 
-	float edge_amount = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_intensity(p_environment);
+	float intensity = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_intensity(p_environment);
 	float minimum_distance = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_minimum_distance(p_environment);
 	Point2 center = Point2(p_size) * RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);
 	//Point2 center = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);
@@ -101,11 +101,11 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	//float max_distance = diagonal - process_push_constant.minimum_distance;
 	float max_distance = p_size.length();
 
-	process_push_constant.edge_factor = edge_amount / diagonal;
+	process_push_constant.edge_factor = intensity / diagonal;
 	// process_push_constant.edge_factor /= diagonal * diagonal;
-	//process_push_constant.edge_factor = edge_amount;
+	//process_push_constant.edge_factor = intensity;
 
-	//	process_push_constant.edge_factor = edge_amount / max_distance;
+	//	process_push_constant.edge_factor = intensity / max_distance;
 
 	process_push_constant.center[0] = center.x;
 	process_push_constant.center[1] = center.y;

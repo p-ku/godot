@@ -1162,7 +1162,7 @@ public:
 		ENV_TONE_MAPPER_ACES
 	};
 
-	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) = 0; //, bool p_half_resolution) = 0;
+	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_intensity, float p_minimum_distance, Vector2 p_center) = 0; //, bool p_half_resolution) = 0;
 
 	virtual void environment_set_tonemap(RID p_env, EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white) = 0;
 	virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction) = 0;

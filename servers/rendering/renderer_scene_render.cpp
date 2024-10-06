@@ -684,8 +684,8 @@ RS::EnvironmentSDFGIYScale RendererSceneRender::environment_get_sdfgi_y_scale(RI
 
 // Chromatic Aberration
 
-void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
-	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_jitter, p_samples, p_edge_amount, p_minimum_distance, p_center); //, p_half_resolution);
+void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_intensity, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
+	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_jitter, p_samples, p_intensity, p_minimum_distance, p_center); //, p_half_resolution);
 }
 
 bool RendererSceneRender::environment_get_chromatic_aberration_enabled(RID p_env) const {

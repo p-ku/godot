@@ -301,7 +301,7 @@ public:
 	virtual void environment_set_sdfgi_frames_to_update_light(RS::EnvironmentSDFGIFramesToUpdateLight p_update) = 0;
 
 	// Chromatic Aberration
-	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) = 0; //, bool p_half_resolution) = 0;
+	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_intensity, float p_minimum_distance, Vector2 p_center) = 0; //, bool p_half_resolution) = 0;
 
 	virtual bool environment_get_chromatic_aberration_enabled(RID p_env) const = 0;
 	virtual bool environment_get_chromatic_aberration_jitter(RID p_env) const = 0;

@@ -307,7 +307,7 @@ public:
 	RS::EnvironmentSDFGIYScale environment_get_sdfgi_y_scale(RID p_env) const;
 
 	// Chromatic Aberration
-	void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center); //, bool p_half_resolution);
+	void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_intensity, float p_minimum_distance, Vector2 p_center); //, bool p_half_resolution);
 	bool environment_get_chromatic_aberration_enabled(RID p_env) const;
 	bool environment_get_chromatic_aberration_jitter(RID p_env) const;
 	int environment_get_chromatic_aberration_samples(RID p_env) const;

@@ -1224,7 +1224,7 @@
 			<param index="1" name="enable" type="bool" />
 			<param index="2" name="jitter" type="bool" />
 			<param index="3" name="samples" type="int" />
-			<param index="4" name="edge_amount" type="float" />
+			<param index="4" name="intensity" type="float" />
 			<param index="5" name="center" type="Vector2" />
 			<param index="6" name="minimum_distance" type="float" />
 			<param index="7" name="center" type="Vector2" />

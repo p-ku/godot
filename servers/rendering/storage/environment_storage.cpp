@@ -770,7 +770,7 @@ RS::EnvironmentSDFGIYScale RendererEnvironmentStorage::environment_get_sdfgi_y_s
 
 // Chromatic Aberration
 
-void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
+void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_intensity, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL(env);
 
@@ -782,7 +782,7 @@ void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env,
 	env->chromatic_aberration_enabled = p_enable;
 	env->chromatic_aberration_jitter = p_jitter;
 	env->chromatic_aberration_samples = p_samples;
-	env->chromatic_aberration_intensity = p_edge_amount;
+	env->chromatic_aberration_intensity = p_intensity;
 	env->chromatic_aberration_minimum_distance = p_minimum_distance;
 	env->chromatic_aberration_center = p_center;
 	// env->chromatic_aberration_half_resolution = p_half_resolution;
