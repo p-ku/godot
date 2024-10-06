@@ -569,44 +569,27 @@ void RendererSceneRenderRD::_render_buffers_post_process_and_tonemap(const Rende
 	if (can_use_effects && p_render_data->environment.is_valid() && environment_get_chromatic_aberration_enabled(p_render_data->environment)) {
 		RENDER_TIMESTAMP("Chromatic Aberration");
 		RD::get_singleton()->draw_command_begin_label("Chromatic aberration");
-
 		Size2i full_size = rb->get_internal_size();
-		Point2 center = 0.5 * Size2(full_size);
+		Size2i size = full_size;
+		RID second_texture;
+		rb->allocate_blur_textures();
 
-		// Size2i half_size = Size2i((full_size.x % 2) + (full_size.x >> 1), (full_size.y % 2) + (full_size.y >> 1));
-
+		// if (environment_get_chromatic_aberration_half_resolution(p_render_data->environment)) {
+		// 	second_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
+		// 	size.x = full_size.x >> 1;
+		// 	size.y = full_size.y >> 1;
+		// } else {
+		second_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
+		// }
 		RID texture = rb->get_internal_texture();
 
-		rb->allocate_blur_textures();
-		//RID half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
-		RID second_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
+		//	RID second_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
 
 		for (uint32_t i = 0; i < rb->get_view_count(); i++) {
-			chromatic_aberration->chromatic_aberration_process(texture, second_texture, full_size, center, p_render_data->environment);
+			chromatic_aberration->chromatic_aberration_process(texture, second_texture, size, full_size, p_render_data->environment);
 		}
 		RD::get_singleton()->draw_command_end_label();
 	}
-	// if (can_use_effects && RSG::camera_attributes->camera_attributes_uses_chromatic_aberration(p_render_data->camera_attributes)) {
-	// 	RENDER_TIMESTAMP("Chromatic Aberration");
-	// 	RD::get_singleton()->draw_command_begin_label("Chromatic aberration");
-	// 	//	rb->allocate_blur_textures();
-
-	// 	Ref<RendererRD::ChromaticAberration::ChromaticAberrationBuffers> ca_storage_buffers = chromatic_aberration->get_ca_buffers(rb);
-	// 	RendererRD::ChromaticAberration::ChromaticAberrationBuffers ca_buffers;
-	// 	ca_buffers.base_texture_size = rb->get_internal_size();
-
-	// 	for (uint32_t i = 0; i < rb->get_view_count(); i++) {
-	// 		ca_buffers.base_texture = rb->get_internal_texture(i);
-	// 		ca_buffers.secondary_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_0, 0, 0);
-	// 		//	ca_buffers.half_texture = rb->get_texture_slice(RB_SCOPE_BUFFERS, RB_TEX_BLUR_1, 0, 0);
-	// 		RID ca_texture;
-	// 		ca_texture = chromatic_aberration->get_current_ca_buffer(rb); // this will return and empty RID if we don't have a ca buffer
-	// 		if (ca_texture.is_null()) {
-	// 					}
-	// 		chromatic_aberration->chromatic_aberration_process(ca_storage_buffers, ca_buffers, p_render_data->camera_attributes);
-	// 	}
-	// 	RD::get_singleton()->draw_command_end_label();
-	// }
 
 	{
 		RENDER_TIMESTAMP("Tonemap");

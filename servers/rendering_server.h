@@ -1162,12 +1162,7 @@ public:
 		ENV_TONE_MAPPER_ACES
 	};
 
-	enum EnvironmentChromaticAberrationSampleMode {
-		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE,
-		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE,
-		ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM
-	};
-	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) = 0;
+	virtual void environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) = 0; //, bool p_half_resolution) = 0;
 
 	virtual void environment_set_tonemap(RID p_env, EnvironmentToneMapper p_tone_mapper, float p_exposure, float p_white) = 0;
 	virtual void environment_set_adjustment(RID p_env, bool p_enable, float p_brightness, float p_contrast, float p_saturation, bool p_use_1d_color_correction, RID p_color_correction) = 0;
@@ -1832,8 +1827,6 @@ VARIANT_ENUM_CAST(RenderingServer::EnvironmentBG);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentAmbientSource);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentReflectionSource);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentGlowBlendMode);
-// VARIANT_ENUM_CAST(RenderingServer::EnvironmentCAQuality);
-VARIANT_ENUM_CAST(RenderingServer::EnvironmentChromaticAberrationSampleMode);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentFogMode);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentToneMapper);
 VARIANT_ENUM_CAST(RenderingServer::EnvironmentSSRRoughnessQuality);

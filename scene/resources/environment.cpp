@@ -1031,16 +1031,6 @@ bool Environment::is_chromatic_aberration_enabled() const {
 	return chromatic_aberration_enabled;
 }
 
-void Environment::set_chromatic_aberration_sample_mode(ChromaticAberrationSampleMode p_mode) {
-	chromatic_aberration_sample_mode = p_mode;
-	_update_chromatic_aberration();
-	notify_property_list_changed();
-}
-
-Environment::ChromaticAberrationSampleMode Environment::get_chromatic_aberration_sample_mode() const {
-	return chromatic_aberration_sample_mode;
-}
-
 void Environment::set_chromatic_aberration_jitter(bool p_jitter) {
 	chromatic_aberration_jitter = p_jitter;
 	_update_chromatic_aberration();
@@ -1077,25 +1067,35 @@ float Environment::get_chromatic_aberration_minimum_distance() const {
 	return chromatic_aberration_minimum_distance;
 }
 
-void Environment::set_chromatic_aberration_desaturation(float p_desaturation) {
-	chromatic_aberration_desaturation = p_desaturation;
+void Environment::set_chromatic_aberration_center(Vector2 p_center) {
+	chromatic_aberration_center = p_center;
 	_update_chromatic_aberration();
 }
 
-float Environment::get_chromatic_aberration_desaturation() const {
-	return chromatic_aberration_desaturation;
+Vector2 Environment::get_chromatic_aberration_center() const {
+	return chromatic_aberration_center;
 }
+
+// void Environment::set_chromatic_aberration_half_resolution(bool p_half_resolution) {
+// 	chromatic_aberration_half_resolution = p_half_resolution;
+// 	_update_chromatic_aberration();
+// }
+
+// bool Environment::get_chromatic_aberration_half_resolution() const {
+// 	return chromatic_aberration_half_resolution;
+// }
 
 void Environment::_update_chromatic_aberration() {
 	RS::get_singleton()->environment_set_chromatic_aberration(
 			environment,
 			chromatic_aberration_enabled,
-			RS::EnvironmentChromaticAberrationSampleMode(chromatic_aberration_sample_mode),
 			chromatic_aberration_jitter,
 			chromatic_aberration_samples,
-			chromatic_aberration_edge_amount,
+			0.25 * Math_PI * chromatic_aberration_edge_amount,
+			//0.25 * Math_PI * chromatic_aberration_edge_amount / Math_SQRT12,
 			chromatic_aberration_minimum_distance,
-			chromatic_aberration_desaturation);
+			Vector2(chromatic_aberration_center.x, 1.0 - chromatic_aberration_center.y));
+	// chromatic_aberration_half_resolution);
 }
 
 // Adjustment
@@ -1241,12 +1241,6 @@ void Environment::_validate_property(PropertyInfo &p_property) const {
 
 	if (p_property.name == "background_intensity" && !GLOBAL_GET("rendering/lights_and_shadows/use_physical_light_units")) {
 		p_property.usage = PROPERTY_USAGE_NO_EDITOR;
-	}
-
-	if (p_property.name == "chromatic_aberration_jitter" || p_property.name == "chromatic_aberration_samples" || p_property.name == "chromatic_aberration_custom_texture") {
-		if (chromatic_aberration_sample_mode != CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM) {
-			p_property.usage = PROPERTY_USAGE_NO_EDITOR;
-		}
 	}
 
 	static const char *hide_prefixes[] = {
@@ -1629,28 +1623,27 @@ void Environment::_bind_methods() {
 
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_enabled", "enabled"), &Environment::set_chromatic_aberration_enabled);
 	ClassDB::bind_method(D_METHOD("is_chromatic_aberration_enabled"), &Environment::is_chromatic_aberration_enabled);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_sample_mode", "mode"), &Environment::set_chromatic_aberration_sample_mode);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_sample_mode"), &Environment::get_chromatic_aberration_sample_mode);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_jitter", "jitter"), &Environment::set_chromatic_aberration_jitter);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_jitter"), &Environment::get_chromatic_aberration_jitter);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_samples", "samples"), &Environment::set_chromatic_aberration_samples);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_samples"), &Environment::get_chromatic_aberration_samples);
-
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_edge_amount", "amount"), &Environment::set_chromatic_aberration_edge_amount);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_edge_amount"), &Environment::get_chromatic_aberration_edge_amount);
 	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_minimum_distance", "distance"), &Environment::set_chromatic_aberration_minimum_distance);
 	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_minimum_distance"), &Environment::get_chromatic_aberration_minimum_distance);
-	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_desaturation", "desaturation"), &Environment::set_chromatic_aberration_desaturation);
-	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_desaturation"), &Environment::get_chromatic_aberration_desaturation);
+	ClassDB::bind_method(D_METHOD("set_chromatic_aberration_center", "center"), &Environment::set_chromatic_aberration_center);
+	ClassDB::bind_method(D_METHOD("get_chromatic_aberration_center"), &Environment::get_chromatic_aberration_center);
+	// ClassDB::bind_method(D_METHOD("set_chromatic_aberration_half_resolution", "half_resolution"), &Environment::set_chromatic_aberration_half_resolution);
+	// ClassDB::bind_method(D_METHOD("get_chromatic_aberration_half_resolution"), &Environment::get_chromatic_aberration_half_resolution);
 
 	ADD_GROUP("Chromatic Aberration", "chromatic_aberration_");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_enabled"), "set_chromatic_aberration_enabled", "is_chromatic_aberration_enabled");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_sample_mode", PROPERTY_HINT_ENUM, "Two-Tone,Three-Tone,Spectrum"), "set_chromatic_aberration_sample_mode", "get_chromatic_aberration_sample_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_jitter"), "set_chromatic_aberration_jitter", "get_chromatic_aberration_jitter");
-	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_samples", PROPERTY_HINT_RANGE, "4,64,4"), "set_chromatic_aberration_samples", "get_chromatic_aberration_samples");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_edge_amount", PROPERTY_HINT_RANGE, "0.01,1.0,0.01"), "set_chromatic_aberration_edge_amount", "get_chromatic_aberration_edge_amount");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "chromatic_aberration_samples", PROPERTY_HINT_RANGE, "2,100,1"), "set_chromatic_aberration_samples", "get_chromatic_aberration_samples");
+	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_edge_amount", PROPERTY_HINT_RANGE, "0.0,1.0,0.01"), "set_chromatic_aberration_edge_amount", "get_chromatic_aberration_edge_amount");
 	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_minimum_distance", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_minimum_distance", "get_chromatic_aberration_minimum_distance");
-	ADD_PROPERTY(PropertyInfo(Variant::FLOAT, "chromatic_aberration_desaturation", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_desaturation", "get_chromatic_aberration_desaturation");
+	ADD_PROPERTY(PropertyInfo(Variant::VECTOR2, "chromatic_aberration_center", PROPERTY_HINT_RANGE, "0.0,1.0,0.0001"), "set_chromatic_aberration_center", "get_chromatic_aberration_center");
+	// ADD_PROPERTY(PropertyInfo(Variant::BOOL, "chromatic_aberration_half_resolution"), "set_chromatic_aberration_half_resolution", "get_chromatic_aberration_half_resolution");
 
 	// Adjustment
 
@@ -1701,18 +1694,6 @@ void Environment::_bind_methods() {
 	BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_SOFTLIGHT);
 	BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_REPLACE);
 	BIND_ENUM_CONSTANT(GLOW_BLEND_MODE_MIX);
-
-	// BIND_ENUM_CONSTANT(CA_QUALITY_4);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_8);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_12);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_16);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_20);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_24);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_28);
-	// BIND_ENUM_CONSTANT(CA_QUALITY_32);
-	BIND_ENUM_CONSTANT(CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE);
-	BIND_ENUM_CONSTANT(CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE);
-	BIND_ENUM_CONSTANT(CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM);
 
 	BIND_ENUM_CONSTANT(FOG_MODE_EXPONENTIAL);
 	BIND_ENUM_CONSTANT(FOG_MODE_DEPTH);

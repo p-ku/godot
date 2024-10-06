@@ -48,27 +48,23 @@ private:
 	bool prefer_raster_effects;
 
 	struct ProcessPushConstant {
-		int32_t half_size[2];
+		int32_t size[2];
 		int32_t full_size[2];
 
 		float pixel_size[2];
-		uint32_t sample_mode;
-		uint32_t jitter;
+		float center[2];
 
-		float jitter_seed[2];
+		float jitter_seed;
 		float max_samples;
 		float edge_factor;
 
-		float desaturation;
 		float minimum_distance;
-		float center[2];
-		// uint32_t pad;
+		uint32_t pad[8];
 	};
 
 	enum ChromaticAberrationMode {
-		PROCESS_TWO_TONE,
-		PROCESS_THREE_TONE,
-		PROCESS_SPECTRUM,
+		PROCESS,
+		PROCESS_JITTER,
 		COMPOSITE,
 		MAX_MODES
 	};
@@ -97,7 +93,7 @@ public:
 	ChromaticAberration(bool p_prefer_raster_effects);
 	~ChromaticAberration();
 
-	void chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_full_size, Size2 p_center, RID p_camera_attributes);
+	void chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_size, Size2i p_full_size, RID p_camera_attributes);
 };
 } // namespace RendererRD
 #endif // CHROMATIC_ABERRATION_RD_H

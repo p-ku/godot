@@ -88,22 +88,6 @@ public:
 		GLOW_BLEND_MODE_MIX,
 	};
 
-	// enum CAQuality {
-	// 	CA_QUALITY_4,
-	// 	CA_QUALITY_8,
-	// 	CA_QUALITY_12,
-	// 	CA_QUALITY_16,
-	// 	CA_QUALITY_20,
-	// 	CA_QUALITY_24,
-	// 	CA_QUALITY_28,
-	// 	CA_QUALITY_32,
-	// };
-	enum ChromaticAberrationSampleMode {
-		CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE,
-		CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE,
-		CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM,
-	};
-
 private:
 	RID environment;
 
@@ -230,14 +214,14 @@ private:
 
 	// Chromatic Aberration
 	bool chromatic_aberration_enabled = false;
-	ChromaticAberrationSampleMode chromatic_aberration_sample_mode = CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM;
 
 	// CAQuality chromatic_aberration_quality = CA_QUALITY_4;
 	bool chromatic_aberration_jitter = true;
 	int chromatic_aberration_samples = 4;
 	float chromatic_aberration_edge_amount = 0.5;
 	float chromatic_aberration_minimum_distance = 0.0;
-	float chromatic_aberration_desaturation = 0.0;
+	Vector2 chromatic_aberration_center = Vector2(0.5, 0.5);
+	bool chromatic_aberration_half_resolution = true;
 
 	void _update_chromatic_aberration();
 
@@ -474,8 +458,6 @@ public:
 	// Chromatic Aberration
 	void set_chromatic_aberration_enabled(bool p_enabled);
 	bool is_chromatic_aberration_enabled() const;
-	void set_chromatic_aberration_sample_mode(ChromaticAberrationSampleMode p_mode);
-	ChromaticAberrationSampleMode get_chromatic_aberration_sample_mode() const;
 	void set_chromatic_aberration_jitter(bool p_jitter);
 	bool get_chromatic_aberration_jitter() const;
 	void set_chromatic_aberration_samples(int p_samples);
@@ -484,9 +466,10 @@ public:
 	float get_chromatic_aberration_edge_amount() const;
 	void set_chromatic_aberration_minimum_distance(float p_distance);
 	float get_chromatic_aberration_minimum_distance() const;
-	void set_chromatic_aberration_desaturation(float p_distance);
-	float get_chromatic_aberration_desaturation() const;
-
+	void set_chromatic_aberration_center(Vector2 p_center);
+	Vector2 get_chromatic_aberration_center() const;
+	// void set_chromatic_aberration_half_resolution(bool p_half_resolution);
+	// bool get_chromatic_aberration_half_resolution() const;
 	Environment();
 	~Environment();
 };
@@ -497,7 +480,6 @@ VARIANT_ENUM_CAST(Environment::ReflectionSource)
 VARIANT_ENUM_CAST(Environment::ToneMapper)
 VARIANT_ENUM_CAST(Environment::SDFGIYScale)
 VARIANT_ENUM_CAST(Environment::GlowBlendMode)
-VARIANT_ENUM_CAST(Environment::ChromaticAberrationSampleMode)
 VARIANT_ENUM_CAST(Environment::FogMode)
 
 #endif // ENVIRONMENT_H

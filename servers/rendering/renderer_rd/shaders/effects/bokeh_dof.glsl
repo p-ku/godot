@@ -186,24 +186,59 @@ void main() {
 	uv += pixel_size * 0.5; //half pixel to read centers
 
 	vec4 color = texture(color_texture, uv);
+	//	float initial_blur = color.a;
 	float initial_blur = color.a;
+	// initial_blur.g = color.a;
 	float accum = 1.0;
 	float radius = params.blur_scale;
+	vec4 ca_multi;
+	// float depth = get_depth_at_pos(uv);
+
+	// initial_blur.r = get_size(depth.g - 0.1);
+	// initial_blur.b = get_size(depth.g + 0.1);
+	// ca_multi.r = initial_blur.g / initial_blur.r;
+	// ca_multi.b = initial_blur.g / initial_blur.b;
+	ca_multi.g = 1.0;
+	ca_multi.a = 1.0;
+	// if (initial_blur.g < 0.0) {
+	// 	// ca_multi = vec4(1.0, 0.75, 0.5, 1.0);
+	// 	float d = abs(params.blur_near_begin - depth + 0.1);
+	// 	ca_multi.r = -(d / (params.blur_near_begin - d)) * params.blur_size_near - DEPTH_GAP;
+	// 	d = abs(params.blur_near_begin - depth - 0.1);
+	// 	ca_multi.b = -(d / (params.blur_near_begin - d)) * params.blur_size_near - DEPTH_GAP;
+	// } else {
+	// 	// ca_multi = vec4(0.5, 0.75, 1.0, 1.0);
+	// }
 
 	for (float ang = 0.0; radius < params.blur_size; ang += GOLDEN_ANGLE) {
 		vec2 suv = uv + vec2(cos(ang), sin(ang)) * pixel_size * radius;
 		vec4 sample_color = texture(color_texture, suv);
 		float sample_size = abs(sample_color.a);
+		// float largest = max(initial_blur.r, initial_blur.b);
 		if (sample_color.a > initial_blur) {
 			sample_size = clamp(sample_size, 0.0, abs(initial_blur) * 2.0);
 		}
+		vec4 m = smoothstep(radius - 0.5, radius + 0.5, sample_size * ca_multi);
 
-		float m = smoothstep(radius - 0.5, radius + 0.5, sample_size);
-		color += mix(color / accum, sample_color, m);
+		//vec4 differ = vec4(1.0, 0.75, 0.5, 0.75);
+		//vec4 mv = smoothstep((radius - 0.5) * differ, (radius + 0.5) * differ, vec4(sample_size));
+
+		color += mix(color / accum, sample_color, m); //* vec4(1.0, newg, newb, 1.0);
 		accum += 1.0;
 		radius += params.blur_scale / radius;
 	}
-
+	// if (newg >= 0.0 && newg <= 1.0) {
+	// 	imageStore(bokeh_image, pos, vec4(0.0, 1.0, 0.0, 1.0));
+	// 	return;
+	// } else {
+	// 	if (newg > 1.0) {
+	// 		imageStore(bokeh_image, pos, vec4(1.0));
+	// 		return;
+	// 	} else {
+	// 		imageStore(bokeh_image, pos, vec4(0.0));
+	// 		return;
+	// 	}
+	// }
 	color /= accum;
 
 	imageStore(bokeh_image, pos, color);
@@ -214,7 +249,16 @@ void main() {
 	uv += pixel_size * 0.5;
 	vec4 color = imageLoad(color_image, pos);
 	vec4 bokeh = texture(source_bokeh, uv);
-
+	// if (all(equal(bokeh, vec4(0.0)))) {
+	// 	imageStore(color_image, pos, vec4(0.0));
+	// 	return;
+	// } else if (all(equal(bokeh, vec4(1.0)))) {
+	// 	imageStore(color_image, pos, vec4(1.0));
+	// 	return;
+	// } else if (all(equal(bokeh, vec4(0.0, 1.0, 0.0, 1.0)))) {
+	// 	imageStore(color_image, pos, vec4(0.0, 1.0, 0.0, 1.0));
+	// 	return;
+	// }
 	float mix_amount;
 	if (bokeh.a < color.a) {
 		mix_amount = min(1.0, max(0.0, max(abs(color.a), abs(bokeh.a)) - DEPTH_GAP));

@@ -770,7 +770,7 @@ RS::EnvironmentSDFGIYScale RendererEnvironmentStorage::environment_get_sdfgi_y_s
 
 // Chromatic Aberration
 
-void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) {
+void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL(env);
 
@@ -780,30 +780,18 @@ void RendererEnvironmentStorage::environment_set_chromatic_aberration(RID p_env,
 	// 	}
 	// #endif
 	env->chromatic_aberration_enabled = p_enable;
-	env->chromatic_aberration_sample_mode = p_mode;
 	env->chromatic_aberration_jitter = p_jitter;
 	env->chromatic_aberration_samples = p_samples;
 	env->chromatic_aberration_edge_amount = p_edge_amount;
 	env->chromatic_aberration_minimum_distance = p_minimum_distance;
-	env->chromatic_aberration_desaturation = p_desaturation;
+	env->chromatic_aberration_center = p_center;
+	// env->chromatic_aberration_half_resolution = p_half_resolution;
 }
 
 bool RendererEnvironmentStorage::environment_get_chromatic_aberration_enabled(RID p_env) const {
 	Environment *env = environment_owner.get_or_null(p_env);
 	ERR_FAIL_NULL_V(env, false);
 	return env->chromatic_aberration_enabled;
-}
-
-// RS::EnvironmentCAQuality RendererEnvironmentStorage::environment_get_chromatic_aberration_quality(RID p_env) const {
-// 	Environment *env = environment_owner.get_or_null(p_env);
-// 	ERR_FAIL_NULL_V(env, RS::ENV_CA_QUALITY_4);
-// 	return env->chromatic_aberration_quality;
-// }
-
-RS::EnvironmentChromaticAberrationSampleMode RendererEnvironmentStorage::environment_get_chromatic_aberration_sample_mode(RID p_env) const {
-	Environment *env = environment_owner.get_or_null(p_env);
-	ERR_FAIL_NULL_V(env, RS::ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM);
-	return env->chromatic_aberration_sample_mode;
 }
 
 bool RendererEnvironmentStorage::environment_get_chromatic_aberration_jitter(RID p_env) const {
@@ -830,11 +818,17 @@ float RendererEnvironmentStorage::environment_get_chromatic_aberration_minimum_d
 	return env->chromatic_aberration_minimum_distance;
 }
 
-float RendererEnvironmentStorage::environment_get_chromatic_aberration_desaturation(RID p_env) const {
+Vector2 RendererEnvironmentStorage::environment_get_chromatic_aberration_center(RID p_env) const {
 	Environment *env = environment_owner.get_or_null(p_env);
-	ERR_FAIL_NULL_V(env, 0.0);
-	return env->chromatic_aberration_desaturation;
+	ERR_FAIL_NULL_V(env, Vector2(0.5, 0.5));
+	return env->chromatic_aberration_center;
 }
+
+// bool RendererEnvironmentStorage::environment_get_chromatic_aberration_half_resolution(RID p_env) const {
+// 	Environment *env = environment_owner.get_or_null(p_env);
+// 	ERR_FAIL_NULL_V(env, true);
+// 	return env->chromatic_aberration_half_resolution;
+// }
 
 // Adjustments
 

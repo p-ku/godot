@@ -684,16 +684,12 @@ RS::EnvironmentSDFGIYScale RendererSceneRender::environment_get_sdfgi_y_scale(RI
 
 // Chromatic Aberration
 
-void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, RS::EnvironmentChromaticAberrationSampleMode p_mode, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, float p_desaturation) {
-	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_mode, p_jitter, p_samples, p_edge_amount, p_minimum_distance, p_desaturation);
+void RendererSceneRender::environment_set_chromatic_aberration(RID p_env, bool p_enable, bool p_jitter, int p_samples, float p_edge_amount, float p_minimum_distance, Vector2 p_center) { //, bool p_half_resolution) {
+	environment_storage.environment_set_chromatic_aberration(p_env, p_enable, p_jitter, p_samples, p_edge_amount, p_minimum_distance, p_center); //, p_half_resolution);
 }
 
 bool RendererSceneRender::environment_get_chromatic_aberration_enabled(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_enabled(p_env);
-}
-
-RS::EnvironmentChromaticAberrationSampleMode RendererSceneRender::environment_get_chromatic_aberration_sample_mode(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_sample_mode(p_env);
 }
 
 bool RendererSceneRender::environment_get_chromatic_aberration_jitter(RID p_env) const {
@@ -711,9 +707,14 @@ float RendererSceneRender::environment_get_chromatic_aberration_edge_amount(RID 
 float RendererSceneRender::environment_get_chromatic_aberration_minimum_distance(RID p_env) const {
 	return environment_storage.environment_get_chromatic_aberration_minimum_distance(p_env);
 }
-float RendererSceneRender::environment_get_chromatic_aberration_desaturation(RID p_env) const {
-	return environment_storage.environment_get_chromatic_aberration_desaturation(p_env);
+
+Vector2 RendererSceneRender::environment_get_chromatic_aberration_center(RID p_env) const {
+	return environment_storage.environment_get_chromatic_aberration_center(p_env);
 }
+
+// bool RendererSceneRender::environment_get_chromatic_aberration_half_resolution(RID p_env) const {
+// 	return environment_storage.environment_get_chromatic_aberration_half_resolution(p_env);
+// }
 
 // Adjustments
 

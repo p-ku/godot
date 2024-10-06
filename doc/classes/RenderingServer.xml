@@ -1222,14 +1222,13 @@
 			<return type="void" />
 			<param index="0" name="env" type="RID" />
 			<param index="1" name="enable" type="bool" />
-			<param index="2" name="mode" type="int" enum="RenderingServer.EnvironmentChromaticAberrationSampleMode" default="2" />
-			<param index="3" name="jitter" type="bool" />
-			<param index="4" name="samples" type="int" />
-			<param index="5" name="custom_texture" type="RID" />
-			<param index="6" name="edge_amount" type="float" />
-			<param index="7" name="linear_amount" type="float" />
-			<param index="8" name="center" type="Vector2" />
-			<param index="9" name="minimum_distance" type="float" />
+			<param index="2" name="jitter" type="bool" />
+			<param index="3" name="samples" type="int" />
+			<param index="4" name="edge_amount" type="float" />
+			<param index="5" name="center" type="Vector2" />
+			<param index="6" name="minimum_distance" type="float" />
+			<param index="7" name="center" type="Vector2" />
+			<!-- <param index="8" name="half_resolution" type="bool" /> -->
 			<description>
 				Sets the values to be used with the "chromatic aberration" post-process effect. See [Environment] for more details.
 			</description>
@@ -5125,39 +5124,6 @@
 		</constant>
 		<constant name="ENV_GLOW_BLEND_MODE_MIX" value="4" enum="EnvironmentGlowBlendMode">
 			Mixes the glow with the underlying color to avoid increasing brightness as much while still maintaining a glow effect.
-		</constant>
-		<!-- <constant name="ENV_CA_QUALITY_4" value="0" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 4 samples
-		</constant>
-		<constant name="ENV_CA_QUALITY_8" value="1" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 8 samples
-		</constant>
-		<constant name="ENV_CA_QUALITY_12" value="2" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 12 samples
-		</constant>
-		<constant name="ENV_CA_QUALITY_16" value="3" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 16 samples
-		</constant>
-		<constant name="ENV_CA_QUALITY_20" value="4" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 20 samples
-		</constant>
-				<constant name="ENV_CA_QUALITY_24" value="5" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 24 samples
-		</constant>
-				<constant name="ENV_CA_QUALITY_28" value="6" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 28 samples
-		</constant>
-				<constant name="ENV_CA_QUALITY_32" value="7" enum="EnvironmentCAQuality">
-			Chromatic aberration quality level of 32 samples
-		</constant> -->
-		<constant name="ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE" value="0" enum="EnvironmentChromaticAberrationSampleMode">
-			Use two samples to calculate chromatic aberration.
-		</constant>
-		<constant name="ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE" value="1" enum="EnvironmentChromaticAberrationSampleMode">
-			Use three samples to calculate chromatic aberration.
-		</constant>
-		<constant name="ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM" value="2" enum="EnvironmentChromaticAberrationSampleMode">
-			Use more than three samples to calculate chromatic aberration with the option to jitter the samples.
 		</constant>
 		<constant name="ENV_FOG_MODE_EXPONENTIAL" value="0" enum="EnvironmentFogMode">
 			Use a physically-based fog model defined primarily by fog density.

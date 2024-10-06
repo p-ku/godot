@@ -43,9 +43,8 @@ ChromaticAberration::ChromaticAberration(bool p_prefer_raster_effects) {
 	prefer_raster_effects = p_prefer_raster_effects;
 
 	Vector<String> chromatic_aberration_modes;
-	chromatic_aberration_modes.push_back("\n#define MODE_CA_PROCESS_TWO_TONE\n");
-	chromatic_aberration_modes.push_back("\n#define MODE_CA_PROCESS_THREE_TONE\n");
-	chromatic_aberration_modes.push_back("\n#define MODE_CA_PROCESS_SPECTRUM\n");
+	chromatic_aberration_modes.push_back("\n#define MODE_CA_PROCESS\n");
+	chromatic_aberration_modes.push_back("\n#define MODE_CA_PROCESS_JITTER\n");
 	chromatic_aberration_modes.push_back("\n#define MODE_CA_COMPOSITE\n");
 
 	ca_shader.initialize(chromatic_aberration_modes);
@@ -62,7 +61,7 @@ void ChromaticAberration::ChromaticAberrationBuffers::set_prefer_raster_effects(
 	prefer_raster_effects = p_prefer_raster_effects;
 }
 
-void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_full_size, Size2 p_center, RID p_environment) {
+void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID p_second_texture, Size2i p_size, Size2i p_full_size, RID p_environment) {
 	//	ERR_FAIL_COND_MSG(prefer_raster_effects, "Can't use compute version of bokeh depth of field with the mobile renderer.");
 
 	UniformSetCacheRD *uniform_set_cache = UniformSetCacheRD::get_singleton();
@@ -71,50 +70,58 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	ERR_FAIL_NULL(material_storage);
 
 	bool jitter = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_jitter(p_environment);
-	RS::EnvironmentChromaticAberrationSampleMode sample_mode = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_sample_mode(p_environment);
 	int samples = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_samples(p_environment);
 
-	float edge_amount = 0.5 * RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_edge_amount(p_environment);
+	float edge_amount = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_edge_amount(p_environment);
 	float minimum_distance = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_minimum_distance(p_environment);
-	float diagonal = p_center.length();
-	Size2i half_size = p_center.ceil();
+	Point2 center = Point2(p_size) * RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);
+	//Point2 center = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_center(p_environment);
 
+	// bool half_resolution = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_half_resolution(p_environment);
+
+	//Size2i half_size = Size2i(center);
+	Point2 diag_diff = p_size - center;
+	//	float diagonal = Point2(MAX(center.x, diag_diff.x), MAX(center.y, diag_diff.y)).length();
+
+	//	float max_diagonal = Point2(MAX(center.x, diag_diff.x), MAX(center.y, diag_diff.y)).length();
+	//float max_diagonal = MAX(center, diag_diff).length();
+	float diagonal = p_size.length();
+
+	// if (p_full_size.x % 2 != 0) {
+	// 	half_size.x += 1;
+	// }
+	// if (p_full_size.y % 2 != 0) {
+	// 	half_size.y += 1;
+	// }
+	//Size2i half_size = Size2i((p_full_size.x % 2) + (p_full_size.x >> 1), (p_full_size.y % 2) + (p_full_size.y >> 1));
 	size_t push_constant_size = sizeof(ProcessPushConstant);
 	memset(&process_push_constant, 0, push_constant_size);
 
 	process_push_constant.minimum_distance = minimum_distance * diagonal;
-	float max_distance = diagonal - process_push_constant.minimum_distance;
+	//float max_distance = diagonal - process_push_constant.minimum_distance;
+	float max_distance = p_size.length();
 
-	process_push_constant.edge_factor = Math_PI * edge_amount / max_distance;
-	process_push_constant.desaturation = RendererSceneRenderRD::get_singleton()->environment_get_chromatic_aberration_desaturation(p_environment);
+	process_push_constant.edge_factor = edge_amount / diagonal;
+	// process_push_constant.edge_factor /= diagonal * diagonal;
+	//process_push_constant.edge_factor = edge_amount;
 
-	process_push_constant.center[0] = p_center.x;
-	process_push_constant.center[1] = p_center.y;
+	//	process_push_constant.edge_factor = edge_amount / max_distance;
 
-	process_push_constant.half_size[0] = half_size.x;
-	process_push_constant.half_size[1] = half_size.y;
+	process_push_constant.center[0] = center.x;
+	process_push_constant.center[1] = center.y;
+
+	process_push_constant.size[0] = p_size.x;
+	process_push_constant.size[1] = p_size.y;
 	process_push_constant.full_size[0] = p_full_size.x;
 	process_push_constant.full_size[1] = p_full_size.y;
 
-	// process_push_constant.jitter_seed[0] = 0.5 * Math::randf() - 0.25;
-	// process_push_constant.jitter_seed[1] = 0.5 * Math::randf() - 0.25;
-	process_push_constant.jitter_seed[0] = Math::randf();
-	process_push_constant.jitter_seed[1] = Math::randf();
-	// std::cout << "\n"
-	// 		  << Math::randf();
-
-	process_push_constant.jitter = jitter;
-	Size2 pixel_size = Size2(0.5, 0.5) / half_size;
+	Size2 pixel_size = Size2(1.0, 1.0) / p_size;
 	process_push_constant.pixel_size[0] = pixel_size.x;
 	process_push_constant.pixel_size[1] = pixel_size.y;
+	// std::cout << "x: " << p_full_size.x << "\n";
+	// std::cout << "y: " << p_full_size.y << "\n";
 
-	if (sample_mode == RS::ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_TWO_TONE) {
-		process_push_constant.max_samples = 1;
-	} else if (sample_mode == RS::ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE) {
-		process_push_constant.max_samples = 2;
-	} else {
-		process_push_constant.max_samples = samples;
-	}
+	process_push_constant.max_samples = samples;
 
 	RID default_sampler = material_storage->sampler_rd_get_default(RS::CANVAS_ITEM_TEXTURE_FILTER_LINEAR, RS::CANVAS_ITEM_TEXTURE_REPEAT_DISABLED);
 
@@ -127,25 +134,22 @@ void ChromaticAberration::chromatic_aberration_process(RID p_source_texture, RID
 	RD::ComputeListID compute_list = RD::get_singleton()->compute_list_begin();
 
 	RID shader;
-	if (sample_mode == RS::ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_SPECTRUM) {
-		shader = ca_shader.version_get_shader(shader_version, PROCESS_SPECTRUM);
+	if (jitter) {
+		process_push_constant.jitter_seed = Math::randf() * 1000.0;
+		shader = ca_shader.version_get_shader(shader_version, PROCESS_JITTER);
 		ERR_FAIL_COND(shader.is_null());
-		RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS_SPECTRUM]);
-	} else if (sample_mode == RS::ENV_CHROMATIC_ABERRATION_SAMPLE_MODE_THREE_TONE) {
-		shader = ca_shader.version_get_shader(shader_version, PROCESS_THREE_TONE);
-		ERR_FAIL_COND(shader.is_null());
-		RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS_THREE_TONE]);
+		RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS_JITTER]);
 	} else {
-		shader = ca_shader.version_get_shader(shader_version, PROCESS_TWO_TONE);
+		shader = ca_shader.version_get_shader(shader_version, PROCESS);
 		ERR_FAIL_COND(shader.is_null());
-		RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS_TWO_TONE]);
+		RD::get_singleton()->compute_list_bind_compute_pipeline(compute_list, pipelines[PROCESS]);
 	}
 
 	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 0, u_base_texture), 0);
 	RD::get_singleton()->compute_list_bind_uniform_set(compute_list, uniform_set_cache->get_cache(shader, 1, u_secondary_image), 1);
 
 	RD::get_singleton()->compute_list_set_push_constant(compute_list, &process_push_constant, push_constant_size);
-	RD::get_singleton()->compute_list_dispatch_threads(compute_list, process_push_constant.half_size[0], process_push_constant.half_size[1], 1);
+	RD::get_singleton()->compute_list_dispatch_threads(compute_list, process_push_constant.size[0], process_push_constant.size[1], 1);
 	RD::get_singleton()->compute_list_add_barrier(compute_list);
 
 	shader = ca_shader.version_get_shader(shader_version, COMPOSITE);
